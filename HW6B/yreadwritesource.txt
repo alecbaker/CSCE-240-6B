@@ -1,6 +1,0 @@
-    RD
-    WRT
-    RD
-    WRT
-    STP
-    END
