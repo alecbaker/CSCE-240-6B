@@ -5,8 +5,8 @@
  * Class 'Assembler' for assembling code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Jane Random Hacker
- * Date: 17 August 2018
+ * Used with permission and modified by: Alec Baker
+ * Date: 18 November 2018
 **/
 
 /***************************************************************************
@@ -43,16 +43,29 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 #ifdef EBUG
   Utils::log_stream << "enter Assemble" << endl;
 #endif
-
   //////////////////////////////////////////////////////////////////////////
   // Pass one
   // Produce the symbol table and detect errors in symbols.
+  //this->PassOne(in_scanner);
+
+  // HW6A Read ASCII input data and dump
+  // Read input data into vector
+  vector<string> ascii_vector;
+  while (in_scanner.HasNext()) {
+    ascii_vector.push_back(in_scanner.NextLine());
+  }
+  // Dump input data from vector
+  cout << endl << "DUMPING ASCII FROM VECTOR" << endl;
+  for (int i = 0; i < ascii_vector.size(); i++) {
+     cout << ascii_vector.at(i) << endl;
+  }
 
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
-
   //////////////////////////////////////////////////////////////////////////
+  // Read binary, set up map of machine code and dump machine code
+  this->PrintMachineCode(binary_filename, out_stream);
   // Dump the results.
 
 #ifdef EBUG
@@ -69,6 +82,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
  *   symbol - the symbol that is invalid
 **/
 string Assembler::GetInvalidMessage(string leadingtext, string symbol) {
+  string returnvalue = "";
 
   return returnvalue;
 }
@@ -95,6 +109,7 @@ string Assembler::GetInvalidMessage(string leadingtext, Hex hex) {
  *   badtext - the undefined symbol text
 **/
 string Assembler::GetUndefinedMessage(string badtext) {
+  string returnvalue = "";
 
   return returnvalue;
 }
@@ -116,6 +131,68 @@ void Assembler::PassOne(Scanner& in_scanner) {
 #ifdef EBUG
   Utils::log_stream << "enter PassOne" << endl;
 #endif
+
+  // The below code is for 6b
+  // Looping until we read in an empty line
+  // because the scanner.HasNext() function was causing
+  // the scanner.NextLine() function to strip the beggining whitespaces
+  /*
+    pc_in_assembler_ = 0;
+    int line_counter = 0;
+    while(true) {
+    string line = in_scanner.NextLine();
+    line_counter++;
+
+    // Break when we read in an empty line
+   if (line == "")
+      break;
+
+    // Skip first line if it contains column headers
+    if (line.at(0) == '*')
+      continue;
+
+    // Set attribute defaults
+    string label = "nulllabel";
+    string mnemonic = "nullmnemonic";
+    string symoperand = "nullsymoperand";
+    string comments = "nullcomments";
+    string addr = "";
+    string hexoperand = "";
+    string code = "";
+
+    // Get machinecode according to line number
+    code = machinecode_.find(line_counter-1)->second;
+    if (code == "")
+      code = "nullcode";
+
+    // Set attributes according to line length
+    if (line.size() >= 2) 
+      label = line.substr(0,3);
+    if (line.size() >= 6) 
+      mnemonic = line.substr(4,3);
+    if (line.size() >= 8) 
+      addr = line.substr(8,1);
+    if (line.size() >= 12) 
+      symoperand = line.substr(10,3);
+    if (line.size() >= 18) 
+      hexoperand = line.substr(14,5);
+    if (line.size() >= 20) 
+      comments = line.substr(20, line.size()); 
+    
+
+    // Set up new CodeLine and store in codelines vector
+    CodeLine code_line = CodeLine();
+    code_line.SetCodeLine(line_counter, pc_in_assembler_, label,
+                          mnemonic, addr, symoperand, hexoperand,
+                          comments, code);
+    codelines_.push_back(code_line);
+    pc_in_assembler_++;
+  }
+
+  // Dump code lines
+  cout << endl << "DUMPING CODE LINES" << endl;
+  this->PrintCodeLines();
+  */
 
 #ifdef EBUG
   Utils::log_stream << "leave PassOne" << endl;
@@ -154,7 +231,7 @@ void Assembler::PrintCodeLines() {
     s += "\n***** ERROR -- NO 'END' STATEMENT\n";
     has_an_error_ = true;
   }
-
+  cout << s << endl;
 #ifdef EBUG
   Utils::log_stream << "leave PrintCodeLines" << endl;
 #endif
@@ -163,7 +240,10 @@ void Assembler::PrintCodeLines() {
 
 /***************************************************************************
  * Function 'PrintMachineCode'.
- * This function prints the machine code.
+ * This function prints the machine code
+
+   Binary read code is based off 
+   Duncan Buell's posted solution to HW5
 **/
 void Assembler::PrintMachineCode(string binary_filename,
                                  ofstream& out_stream) {
@@ -172,6 +252,29 @@ void Assembler::PrintMachineCode(string binary_filename,
                     << binary_filename << endl;
 #endif
   string s = "";
+
+  std::ifstream input(binary_filename, std::ifstream::binary);
+  input.seekg(0, input.end);
+  int length = input.tellg();
+  input.seekg(0, input.beg);
+  char* inputbuffer = new char[2];
+  // Read in binary
+  for (int i = 0; i < length/2; i++) {
+    input.read(inputbuffer, 2);
+    // Convert binary to ASCII and store in machinecode_ with line number
+    int16_t valueread = *(reinterpret_cast<int16_t*>(inputbuffer));
+    string converted_binary = DABnamespace::DecToBitString(valueread, 16);
+    machinecode_.insert(std::pair<int,string>(i,converted_binary));
+  }
+  input.close();
+
+  // Dump converted binary
+  cout << endl << "DUMPING CONVERTED BINARY" << endl;
+  for (int i = 0; i < machinecode_.size(); i++) {
+    out_stream << machinecode_.at(i) << endl;
+    cout << machinecode_.at(i) << endl;
+  }
+  cout << endl;
 
 #ifdef EBUG
   Utils::log_stream << "leave PrintMachineCode" << endl;
@@ -186,7 +289,7 @@ void Assembler::PrintSymbolTable() {
 #ifdef EBUG
   Utils::log_stream << "enter PrintSymbolTable" << endl;
 #endif
-
+  string s = "";
 #ifdef EBUG
   Utils::log_stream << "leave PrintSymbolTable" << endl;
 #endif
