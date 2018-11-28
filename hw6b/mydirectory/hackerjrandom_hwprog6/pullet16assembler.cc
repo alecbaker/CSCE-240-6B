@@ -1,334 +1,73 @@
-#include "pullet16assembler.h"
-
-/***************************************************************************
- *3456789 123456789 123456789 123456789 123456789 123456789 123456789 123456
- * Class 'Assembler' for assembling code.
+/****************************************************************
+ * Header file for the Pullet16 assembler.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: GROUP
- * Date: 18 November 2018
- * VERSION 1
+ * Used with permission and modified by: Jane Random Hacker
+ * Date: 17 August 2018
 **/
 
-/***************************************************************************
- * Constructor
-**/
-Assembler::Assembler() {
+#ifndef ASSEMBLER_H
+#define ASSEMBLER_H
 
-}
+#include <iostream>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
-/***************************************************************************
- * Destructor
-**/
-Assembler::~Assembler() {
-}
+using std::cin;
+using std::cout;
+using std::endl;
+using std::max;
+using std::ofstream;
+using std::set;
+using std::string;
+using std::vector;
 
-/***************************************************************************
- * Accessors and Mutators
-**/
+#include "../../Utilities/scanner.h"
+#include "../../Utilities/scanline.h"
+#include "../../Utilities/utils.h"
 
-/***************************************************************************
- * General functions.
-**/
+#include "dabnamespace.h"
+#include "codeline.h"
+#include "hex.h"
+#include "symbol.h"
 
-/***************************************************************************
- * Function 'Assemble'.
- * This top level function assembles the code.
- *
- * Parameters:
- *   in_scanner - the scanner to read for source code
- *   out_stream - the output stream to write to
-**/
-void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
-                         ofstream& out_stream) {
-#ifdef EBUG
-  Utils::log_stream << "enter Assemble" << endl;
+class Assembler {
+ public:
+  Assembler();
+  virtual ~Assembler();
+
+  void Assemble(Scanner& in_scanner, string binary_filename,
+                ofstream& out_stream);
+
+ private:
+  bool found_end_statement_;
+  bool has_an_error_;
+
+  const string kDummyCodeA = "1100110011001100";
+  const string kDummyCodeB = "111100001111";
+  const string kDummyCodeC = "1111000000000000";
+  const string kDummyCodeD = "0000000011110000";
+
+  int pc_in_assembler_;
+  int maxpc_;
+  vector<CodeLine> codelines_;
+  map<int, string> machinecode_;
+  map<string, Symbol> symboltable_;
+  map<string, string> opcodes_;
+  set<string> mnemonics_;
+
+  string GetInvalidMessage(string leadingtext, string invalidstring);
+  string GetInvalidMessage(string leadingtext, Hex hex);
+  string GetUndefinedMessage(string badtext);
+  void PassOne(Scanner& in_scanner);
+  void PassTwo();
+  void PrintCodeLines();
+  void PrintMachineCode(string binary_filename, ofstream& out_stream);
+  void PrintSymbolTable();
+  void SetNewPC(CodeLine codeline);
+  void UpdateSymbolTable(int programcounter, string label);
+};
 #endif
-  //////////////////////////////////////////////////////////////////////////
-  // Pass one
-  // Produce the symbol table and detect errors in symbols.
-  //this->PassOne(in_scanner);
-
-  // HW6A Read ASCII input data and dump
-  // Read input data into vector
-  vector<string> ascii_vector;
-  while (in_scanner.HasNext()) {
-    ascii_vector.push_back(in_scanner.NextLine());
-  }
-  // Dump input data from vector
-  cout << endl << "DUMPING ASCII FROM VECTOR" << endl;
-  for (int i = 0; i < ascii_vector.size(); i++) {
-     cout << ascii_vector.at(i) << endl;
-  }
-
-  //////////////////////////////////////////////////////////////////////////
-  // Pass two
-  // Generate the machine code.
-  //////////////////////////////////////////////////////////////////////////
-  // Read binary, set up map of machine code and dump machine code
-  this->PrintMachineCode(binary_filename, out_stream);
-  // Dump the results.
-
-#ifdef EBUG
-  Utils::log_stream << "leave Assemble" << endl;
-#endif
-}
-
-/***************************************************************************
- * Function 'GetInvalidMessage'.
- * This creates a "value is invalid" error message.
- *
- * Parameters:
- *   leadingtext - the text of what it is that is invalid
- *   symbol - the symbol that is invalid
-**/
-string Assembler::GetInvalidMessage(string leadingtext, string symbol) {
-  string returnvalue = "";
-
-  return returnvalue;
-}
-
-/***************************************************************************
- * Function 'GetInvalidMessage'.
- * This creates a "value is invalid" error message.
- *
- * Parameters:
- *   leadingtext - the text of what it is that is invalid
- *   hex - the hex operand that is invalid
-**/
-string Assembler::GetInvalidMessage(string leadingtext, Hex hex) {
-  string returnvalue = "";
-
-  return returnvalue;
-}
-
-/***************************************************************************
- * Function 'GetUndefinedMessage'.
- * This creates a "symbol is undefined" error message.
- *
- * Parameters:
- *   badtext - the undefined symbol text
-**/
-string Assembler::GetUndefinedMessage(string badtext) {
-  string returnvalue = "";
-
-  return returnvalue;
-}
-
-/***************************************************************************
- * Function 'PassOne'.
- * Produce the symbol table and detect multiply defined symbols.
- *
- * CAVEAT: We have deliberately forced symbols and mnemonics to have
- *         blank spaces at the end and thus to be all the same length.
- *         Symbols are three characters, possibly with one or two blank at end.
- *         Mnemonics are three characters, possibly with one blank at end.
- *
- * Parameters:
- *   in_scanner - the input stream from which to read
- *   out-stream - the output stream to which to write
-**/
-void Assembler::PassOne(Scanner& in_scanner) {
-#ifdef EBUG
-  Utils::log_stream << "enter PassOne" << endl;
-#endif
-
-  // The below code is for 6b
-  // Looping until we read in an empty line
-  // because the scanner.HasNext() function was causing
-  // the scanner.NextLine() function to strip the beggining whitespaces
-  /*
-    pc_in_assembler_ = 0;
-    int line_counter = 0;
-    while(true) {
-    string line = in_scanner.NextLine();
-    line_counter++;
-
-    // Break when we read in an empty line
-   if (line == "")
-      break;
-
-    // Skip first line if it contains column headers
-    if (line.at(0) == '*')
-      continue;
-
-    // Set attribute defaults
-    string label = "nulllabel";
-    string mnemonic = "nullmnemonic";
-    string symoperand = "nullsymoperand";
-    string comments = "nullcomments";
-    string addr = "";
-    string hexoperand = "";
-    string code = "";
-
-    // Get machinecode according to line number
-    code = machinecode_.find(line_counter-1)->second;
-    if (code == "")
-      code = "nullcode";
-
-    // Set attributes according to line length
-    if (line.size() >= 2) 
-      label = line.substr(0,3);
-    if (line.size() >= 6) 
-      mnemonic = line.substr(4,3);
-    if (line.size() >= 8) 
-      addr = line.substr(8,1);
-    if (line.size() >= 12) 
-      symoperand = line.substr(10,3);
-    if (line.size() >= 18) 
-      hexoperand = line.substr(14,5);
-    if (line.size() >= 20) 
-      comments = line.substr(20, line.size()); 
-    
-
-    // Set up new CodeLine and store in codelines vector
-    CodeLine code_line = CodeLine();
-    code_line.SetCodeLine(line_counter, pc_in_assembler_, label,
-                          mnemonic, addr, symoperand, hexoperand,
-                          comments, code);
-    codelines_.push_back(code_line);
-    pc_in_assembler_++;
-  }
-
-  // Dump code lines
-  cout << endl << "DUMPING CODE LINES" << endl;
-  this->PrintCodeLines();
-  */
-
-#ifdef EBUG
-  Utils::log_stream << "leave PassOne" << endl;
-#endif
-}
-
-/***************************************************************************
- * Function 'PassTwo'.
- * This function does pass two of the assembly process.
-**/
-void Assembler::PassTwo() {
-#ifdef EBUG
-  Utils::log_stream << "enter PassTwo" << endl;
-#endif
-
-#ifdef EBUG
-  Utils::log_stream << "leave PassTwo" << endl;
-#endif
-}
-
-/***************************************************************************
- * Function 'PrintCodeLines'.
- * This function prints the code lines.
-**/
-void Assembler::PrintCodeLines() {
-#ifdef EBUG
-  Utils::log_stream << "enter PrintCodeLines" << endl;
-#endif
-  string s = "";
-
-  for (auto iter = codelines_.begin(); iter != codelines_.end(); ++iter) {
-    s += (*iter).ToString() + '\n';
-  }
-
-  if (!found_end_statement_) {
-    s += "\n***** ERROR -- NO 'END' STATEMENT\n";
-    has_an_error_ = true;
-  }
-  cout << s << endl;
-#ifdef EBUG
-  Utils::log_stream << "leave PrintCodeLines" << endl;
-#endif
-  Utils::log_stream << s << endl;
-}
-
-/***************************************************************************
- * Function 'PrintMachineCode'.
- * This function prints the machine code
-
-   Binary read code is based off 
-   Duncan Buell's posted solution to HW5
-**/
-void Assembler::PrintMachineCode(string binary_filename,
-                                 ofstream& out_stream) {
-#ifdef EBUG
-  Utils::log_stream << "enter PrintMachineCode" << " "
-                    << binary_filename << endl;
-#endif
-  string s = "";
-
-  std::ifstream input(binary_filename, std::ifstream::binary);
-  input.seekg(0, input.end);
-  int length = input.tellg();
-  input.seekg(0, input.beg);
-  char* inputbuffer = new char[2];
-  // Read in binary
-  for (int i = 0; i < length/2; i++) {
-    input.read(inputbuffer, 2);
-    // Convert binary to ASCII and store in machinecode_ with line number
-    int16_t valueread = *(reinterpret_cast<int16_t*>(inputbuffer));
-    string converted_binary = DABnamespace::DecToBitString(valueread, 16);
-    machinecode_.insert(std::pair<int,string>(i,converted_binary));
-  }
-  input.close();
-
-  // Dump converted binary
-  cout << endl << "DUMPING CONVERTED BINARY" << endl;
-  for (int i = 0; i < machinecode_.size(); i++) {
-    out_stream << machinecode_.at(i) << endl;
-    cout << machinecode_.at(i) << endl;
-  }
-  cout << endl;
-
-#ifdef EBUG
-  Utils::log_stream << "leave PrintMachineCode" << endl;
-#endif
-}
-
-/******************************************************************************
- * Function 'PrintSymbolTable'.
- * This function prints the symbol table.
-**/
-void Assembler::PrintSymbolTable() {
-#ifdef EBUG
-  Utils::log_stream << "enter PrintSymbolTable" << endl;
-#endif
-  string s = "";
-#ifdef EBUG
-  Utils::log_stream << "leave PrintSymbolTable" << endl;
-#endif
-  Utils::log_stream << s << endl;
-}
-
-/******************************************************************************
- * Function 'SetNewPC'.
- * This function gets a new value for the program counter.
- *
- * No return value--this sets the class's PC variable.
- *
- * Parameters:
- *   codeline - the line of code from which to update
-**/
-void Assembler::SetNewPC(CodeLine codeline) {
-#ifdef EBUG
-  Utils::log_stream << "enter SetNewPC" << endl;
-#endif
-
-#ifdef EBUG
-  Utils::log_stream << "leave SetNewPC" << endl;
-#endif
-}
-
-/******************************************************************************
- * Function 'UpdateSymbolTable'.
- * This function updates the symbol table for a putative symbol.
- * Note that there is a hack here, in that the default value is 0
- * and that would mean we can't store a symbol at location zero.
- * So we add one, and then back that out after the full first pass is done.
-**/
-void Assembler::UpdateSymbolTable(int pc, string symboltext) {
-#ifdef EBUG
-  Utils::log_stream << "enter UpdateSymbolTable" << endl;
-#endif
-
-#ifdef EBUG
-  Utils::log_stream << "leave UpdateSymbolTable" << endl;
-#endif
-}
