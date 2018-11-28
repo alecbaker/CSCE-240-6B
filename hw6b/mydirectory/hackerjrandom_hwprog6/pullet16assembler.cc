@@ -5,8 +5,9 @@
  * Class 'Assembler' for assembling code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Alec Baker
+ * Used with permission and modified by: GROUP
  * Date: 18 November 2018
+ * VERSION 1
 **/
 
 /***************************************************************************
