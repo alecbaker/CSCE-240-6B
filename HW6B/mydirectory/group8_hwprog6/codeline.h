@@ -2,7 +2,7 @@
  * Header file for the 'CodeLine' class to contain one code line.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 17 August 2018
 **/
 

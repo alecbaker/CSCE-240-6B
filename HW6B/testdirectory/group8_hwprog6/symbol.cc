@@ -4,7 +4,7 @@
  * Class 'Symbol' as a container for one symbol.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 17 August 2018
 **/
 
@@ -18,7 +18,8 @@ Symbol::Symbol() {
  * Constructor
 **/
 Symbol::Symbol(string text, int programcounter) {
-  // code goes here
+  text_ = text;
+  location_ = programcounter;
 }
 
 /******************************************************************************

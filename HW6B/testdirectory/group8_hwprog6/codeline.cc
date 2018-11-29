@@ -4,7 +4,7 @@
  * Class 'CodeLine' as a container for one line of code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 17 August 2018
 **/
 
@@ -32,11 +32,7 @@ CodeLine::~CodeLine() {
  * Accessor for the 'addr_'.
 **/
 string CodeLine::GetAddr() const {
-  string returnvalue;
-
-  // code goes here
-  // }
-  return returnvalue;
+  return addr_;
 }
 
 /***************************************************************************
@@ -93,20 +89,19 @@ string CodeLine::GetSymOperand() const {
 **/
 bool CodeLine::HasLabel() const {
   bool something = true;
-
-  // code here
-
+  if (label_.length() == 0) 
+    something = false;
   return something;
-}
+} 
+
 
 /***************************************************************************
  * Boolean indicator of the presence of a symbolic operand.
 **/
 bool CodeLine::HasSymOperand() const {
-  bool something = true; 
-
-  // code here
-
+  bool something = true;
+  if (symoperand_.length() == 0)
+    something = false;
   return something;
 }
 
@@ -190,6 +185,7 @@ void CodeLine::SetErrorMessages(string messages) {
  *   code - the code to set
 **/
 void CodeLine::SetMachineCode(string code) {
+  code_ = code;
 }
 
 /***************************************************************************

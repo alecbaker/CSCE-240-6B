@@ -27,3 +27,13 @@ NOVEMBER 29 12am - 1am
     ./Aprog ../../ytestban.txt zmyout zmylog.txt
     in the 'group8_hwprog6' directory.
 ETHAN WEAVER:
+November 29 10:30 - 12:15
+  - Made it print the machine code to zmylog.txt
+  - Corrected the handeling of END for pc_in_assembler_
+  - Changed the handeling of the hex's machine_code
+    - has it clear the current string of machine_code
+    - converted the integer representation of the hex as a 16 bit binay string
+    - set that to machine_code
+  - cleanup up out_stream dumps
+    - only thing going to out_stream now is the machine_code
+  - changed the Modified By: 'placeholdername' to show Group 8

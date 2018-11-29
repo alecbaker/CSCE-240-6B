@@ -4,7 +4,7 @@
  * Class 'Hex' as a container for one hex operand.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 17 August 2018
  *
  * We use an instance of a class for a hex operand since there are

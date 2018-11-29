@@ -5,7 +5,7 @@
  * Class 'Assembler' for assembling code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Alec Baker
+ * Used with permission and modified by: Group 8
  * Date: 18 November 2018
 **/
 
@@ -55,7 +55,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   Utils::log_stream << "\nPASS ONE" << endl;
   for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    out_stream << codelines_.at(i).ToString() << "\n";
+    // out_stream << codelines_.at(i).ToString() << "\n";
   }
   Utils::log_stream << endl;
   Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
@@ -73,7 +73,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   Utils::log_stream << "\nPASS TWO" << endl;
   for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    out_stream << codelines_.at(i).ToString() << "\n";
+    // out_stream << codelines_.at(i).ToString() << "\n";
   }
   Utils::log_stream << endl;
   Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
@@ -81,6 +81,10 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
     Utils::log_stream << "SYM " << it->first << " "
                       << it->second.GetLocation() << endl;
   }
+
+  // Printing the machine code to the log file.
+  // At some point we need to take the machine code and dump to .bin and .txt
+
 
   // Read binary, set up map of machine code and dump machine code
   // this->PrintMachineCode(binary_filename, out_stream);
@@ -90,8 +94,21 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   // Subsitute 3rd block for logfile, machine code section 
 
-  Utils::log_stream << endl << endl << endl <<"MACHINE CODE" << endl;
-  Utils::log_stream << "DECIDED TO TAKE BREAK HERE" << endl;
+  Utils::log_stream << "\n\n\n" <<"MACHINE CODE" << endl;
+  // for ( int i = 0; i < pc_in_assembler_-1; i++ ) {
+  for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
+    int i = iter->first;
+    string pretty_code = "";
+    pretty_code = Utils::Format(i, 3) + " ";
+    pretty_code += Utils::Format(DABnamespace::DecToBitString(i, 12), 12);
+    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(0,4), 4);
+    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(4, 4), 4);
+    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(8, 4), 4);
+    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(12, 4), 4);
+    Utils::log_stream << pretty_code << "\n";
+    out_stream << machinecode_.at(i) << "\n";
+  }
+  // Utils::log_stream << "DECIDED TO TAKE BREAK HERE" << endl;
 #ifdef EBUG
   Utils::log_stream << "leave Assemble" << endl;
 #endif
@@ -202,6 +219,8 @@ void Assembler::PassOne(Scanner& in_scanner) {
       hexoperand = line.substr(14,5);
     if (line.size() >= 20) 
       comments = line.substr(20, line.size()); 
+
+    // cout << hexoperand << "\n";
     
     // Set up new CodeLine and store in codelines vector
     CodeLine code_line = CodeLine();
@@ -209,10 +228,14 @@ void Assembler::PassOne(Scanner& in_scanner) {
                           mnemonic, addr, symoperand, hexoperand,
                           comments, code);
     codelines_.push_back(code_line);
+    // cout << code_line.GetHexObject().IsNull() << endl;
     if (label != "   ") {
       Symbol symbol_ = Symbol(label, pc_in_assembler_);
       symboltable_.insert({label, symbol_});
-}
+    }
+    if ( symoperand == "END" ) {
+      pc_in_assembler_--;
+    }
 
     line_counter++;
     pc_in_assembler_++;
@@ -235,7 +258,7 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
-   // int pc = 0;
+   int pc = 0;
    for (int i = 0; i < codelines_.size(); ++i) {
      if (codelines_.at(i).IsAllComment() == false) {
       // cout << " I " << i << endl;
@@ -257,11 +280,14 @@ void Assembler::PassTwo() {
     } else if (mnemonic == "END") {
         machine_code_ += "000011110000";
     } else if (mnemonic == "HEX") {
+        machine_code_ = "";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
         int hex_ = hex.GetValue();
         // cout << "INT HEX " << hex_ << endl;
-        string addr_string = DABnamespace::DecToBitString(hex_, 12);
+        // string addr_string = DABnamespace::DecToBitString(hex_, 12);
+        string addr_string = DABnamespace::DecToBitString(hex_, 16);
+        // cout << "hex bin " << addr_string << "\n";
         machine_code_ += addr_string;
 
         
@@ -273,8 +299,10 @@ void Assembler::PassTwo() {
 }
 
       codelines_.at(i).SetMachineCode(machine_code_);
-      // machinecode_[pc] = machine_code_;
-      // pc++;
+      if ( codelines_.at(i).GetMnemonic() != "END" ) {
+        machinecode_[pc] = machine_code_;
+      }
+      pc++;
       // cout << "CODE " << codelines_.at(i).GetCode() << endl;
    }
  }
@@ -340,7 +368,7 @@ void Assembler::PrintMachineCode(string binary_filename,
   // Dump converted binary
   cout << endl << "DUMPING CONVERTED BINARY" << endl;
   for (int i = 0; i < machinecode_.size(); i++) {
-    out_stream << machinecode_.at(i) << endl;
+    // out_stream << machinecode_.at(i) << endl;
     cout << machinecode_.at(i) << endl;
   }
   cout << endl;

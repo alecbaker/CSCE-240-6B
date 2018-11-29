@@ -4,7 +4,7 @@ static const char kTag[] = "Main: ";
  * Main program for Pullet Assembler program.
  *
  * Author/copyright:  Duncan Buell. All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 17 August 2017
  *
  * Note that the output file name is without extensions because

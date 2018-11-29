@@ -2,7 +2,7 @@
  * Header file for the 'Hex' class to contain one hex operand.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: "Ethan JC Weaver"
+ * Used with permission and modified by: Group 8
  * Date: 22 September 2018
 **/
 
