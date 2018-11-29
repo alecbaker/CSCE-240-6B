@@ -15,7 +15,6 @@
 #include <set>
 #include <string>
 #include <vector>
-// #include <pair>
 
 using std::cin;
 using std::cout;
@@ -25,7 +24,6 @@ using std::ofstream;
 using std::set;
 using std::string;
 using std::vector;
-// using std::pair;
 
 #include "../../Utilities/scanner.h"
 #include "../../Utilities/scanline.h"

@@ -14,7 +14,7 @@
 CodeLine::CodeLine() {
 }
 
-// CodeLine::CodeLine(Globals globals) {
+//CodeLine::CodeLine(Globals globals) {
 //  globals_ = globals;
 //}
 
@@ -89,10 +89,10 @@ string CodeLine::GetSymOperand() const {
 **/
 bool CodeLine::HasLabel() const {
   bool something = true;
-  if (label_.length() == 0)
+  if (label_.length() == 0) 
     something = false;
   return something;
-}
+} 
 
 
 /***************************************************************************
@@ -162,6 +162,9 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
   mnemonic_ = "nullmnemonic";
   addr_ = " ";
   symoperand_ = "nullsymoperand";
+  
+  
+  
 }
 
 /***************************************************************************
@@ -248,8 +251,14 @@ string CodeLine::ToString() const {
   }
 
   if (hex_.IsNotNull()) {
+  // Added this so log would print hex correctly
+    if (mnemonic_ == "HEX") {
+      s += " " + hex_.ToString();
+}
     s += " " + Utils::Format(".....", 5);
-  } else {
+    // s += " " + hex_.ToString();
+} else {
+    // s += " " + Utils::Format(".....", 5);
     s += " " + hex_.ToString();
   }
 

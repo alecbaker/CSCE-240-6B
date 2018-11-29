@@ -13,6 +13,7 @@
  * Constructor
 **/
 Assembler::Assembler() {
+
 }
 
 /***************************************************************************
@@ -45,23 +46,23 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   //////////////////////////////////////////////////////////////////////////
   // Pass one
   // Produce the symbol table and detect errors in symbols.
-  // this->PassOne(in_scanner);
+  //this->PassOne(in_scanner);
 
   // HW6A Read ASCII input data and dump
   // Read input data into vector
 
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
-  for (int i = 0; i < codelines_.size(); i++) {
+  for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     // out_stream << codelines_.at(i).ToString() << "\n";
   }
   Utils::log_stream << endl;
   Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
   for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " "
+    Utils::log_stream << "SYM " << it->first << " " 
                       << it->second.GetLocation() << endl;
-  }
+  }  
 
   //////////////////////////////////////////////////////////////////////////
   // Pass two
@@ -70,7 +71,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassTwo();
   Utils::log_stream << "\nPASS TWO" << endl;
-  for (int i = 0; i < codelines_.size(); i++) {
+  for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     // out_stream << codelines_.at(i).ToString() << "\n";
   }
@@ -88,10 +89,10 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   // Read binary, set up map of machine code and dump machine code
   // this->PrintMachineCode(binary_filename, out_stream);
   // Dump the results.
-
+   
   // Assembler::PrintMachineCode(binary_filename, out_stream);
 
-  // Subsitute 3rd block for logfile, machine code section
+  // Subsitute 3rd block for logfile, machine code section 
 
   Utils::log_stream << "\n\n\n" <<"MACHINE CODE" << endl;
   // for ( int i = 0; i < pc_in_assembler_-1; i++ ) {
@@ -100,7 +101,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
     string pretty_code = "";
     pretty_code = Utils::Format(i, 3) + " ";
     pretty_code += Utils::Format(DABnamespace::DecToBitString(i, 12), 12);
-    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(0, 4), 4);
+    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(0,4), 4);
     pretty_code += " " + Utils::Format(machinecode_.at(i).substr(4, 4), 4);
     pretty_code += " " + Utils::Format(machinecode_.at(i).substr(8, 4), 4);
     pretty_code += " " + Utils::Format(machinecode_.at(i).substr(12, 4), 4);
@@ -176,11 +177,11 @@ void Assembler::PassOne(Scanner& in_scanner) {
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
   // the scanner.NextLine() function to strip the beggining whitespaces
-
+ 
   Utils::log_stream << "\nReading machine code" << endl;
     pc_in_assembler_ = 0;
     int line_counter = 0;
-  while (true) {
+  while(true) {
     string line = in_scanner.NextLine();
     // Break when we read in an empty line
     if (line == "")
@@ -206,21 +207,21 @@ void Assembler::PassOne(Scanner& in_scanner) {
     if (code == "")
       code = "nullcode";
     // Set attributes according to line length
-    if (line.size() >= 2)
-      label = line.substr(0, 3);
-    if (line.size() >= 6)
-      mnemonic = line.substr(4, 3);
-    if (line.size() >= 8)
-      addr = line.substr(8, 1);
-    if (line.size() >= 12)
-      symoperand = line.substr(10, 3);
-    if (line.size() >= 18)
-      hexoperand = line.substr(14, 5);
-    if (line.size() >= 20)
-      comments = line.substr(20, line.size());
+    if (line.size() >= 2) 
+      label = line.substr(0,3);
+    if (line.size() >= 6) 
+      mnemonic = line.substr(4,3);
+    if (line.size() >= 8) 
+      addr = line.substr(8,1);
+    if (line.size() >= 12) 
+      symoperand = line.substr(10,3);
+    if (line.size() >= 18) 
+      hexoperand = line.substr(14,5);
+    if (line.size() >= 20) 
+      comments = line.substr(20, line.size()); 
 
     // cout << hexoperand << "\n";
-
+    
     // Set up new CodeLine and store in codelines vector
     CodeLine code_line = CodeLine();
     code_line.SetCodeLine(line_counter, pc_in_assembler_, label,
@@ -242,6 +243,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
   // Dump code lines
   // cout << endl << "DUMPING CODE LINES" << endl;
   // this->PrintCodeLines();
+    
 
 #ifdef EBUG
   Utils::log_stream << "leave PassOne" << endl;
@@ -256,22 +258,22 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
-  int pc = 0;
-  for (int i = 0; i < codelines_.size(); ++i) {
-    if (codelines_.at(i).IsAllComment() == false) {
-    // cout << " I " << i << endl;
+   int pc = 0;
+   for (int i = 0; i < codelines_.size(); ++i) {
+     if (codelines_.at(i).IsAllComment() == false) {
+      // cout << " I " << i << endl;
       string mnemonic = codelines_.at(i).GetMnemonic();
       string machine_code_ = "";
       machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
       string addr = codelines_.at(i).GetAddr();
-      if (addr == "*")
+      if (addr == "*") 
         machine_code_ += "1";
-      else
+      else 
         machine_code_ += "0";
-
-      if (mnemonic == "RD ") {
+    
+      if (mnemonic == "RD ") { 
         machine_code_ += "000000000001";
-    } else if (mnemonic == "STP") {
+    } else if (mnemonic == "STP") { 
         machine_code_ += "000000000010";
     } else if (mnemonic == "WRT") {
         machine_code_ += "000000000011";
@@ -288,6 +290,7 @@ void Assembler::PassTwo() {
         // cout << "hex bin " << addr_string << "\n";
         machine_code_ += addr_string;
 
+        
     } else {
         string sym = codelines_.at(i).GetSymOperand();
         int loc = symboltable_.at(sym).GetLocation();
@@ -301,8 +304,8 @@ void Assembler::PassTwo() {
       }
       pc++;
       // cout << "CODE " << codelines_.at(i).GetCode() << endl;
-    }
-  }
+   }
+ }
 #ifdef EBUG
   Utils::log_stream << "leave PassTwo" << endl;
 #endif
@@ -358,7 +361,7 @@ void Assembler::PrintMachineCode(string binary_filename,
     // Convert binary to ASCII and store in machinecode_ with line number
     int16_t valueread = *(reinterpret_cast<int16_t*>(inputbuffer));
     string converted_binary = DABnamespace::DecToBitString(valueread, 16);
-    machinecode_.insert(std::pair<int, string>(i, converted_binary));
+    machinecode_.insert(std::pair<int,string>(i,converted_binary));
   }
   input.close();
 

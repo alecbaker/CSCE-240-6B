@@ -1,0 +1,8 @@
+file is simply here to record what our next goal(s) is currently for 6B.
+
+  - We need to fix the pc interation when dealing with END statements
+    current code right now does not work completely correct with using
+    the br source code to aprog the code, Ethan has this fix. 
+  - Start working on catching errors!!
+  - We need someone documenting the code and running mycpplint on the code.
+
