@@ -14,7 +14,7 @@
 CodeLine::CodeLine() {
 }
 
-//CodeLine::CodeLine(Globals globals) {
+// CodeLine::CodeLine(Globals globals) {
 //  globals_ = globals;
 //}
 
@@ -89,10 +89,10 @@ string CodeLine::GetSymOperand() const {
 **/
 bool CodeLine::HasLabel() const {
   bool something = true;
-  if (label_.length() == 0) 
+  if (label_.length() == 0)
     something = false;
   return something;
-} 
+}
 
 
 /***************************************************************************
@@ -162,9 +162,6 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
   mnemonic_ = "nullmnemonic";
   addr_ = " ";
   symoperand_ = "nullsymoperand";
-  
-  
-  
 }
 
 /***************************************************************************
