@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "Launch launching zaZipUpScript.txt"
+./zaZipUpScript.txt
+
+echo " "
+echo "Launch zbFileCopyScript.txt"
+./zbFileCopyScript.txt
+
+echo " "
+echo "Launch zcComplileScript.txt"
+./zcCompileScript.txt
+
+echo " "
+echo "Launch zdExcecuteScript.txt"
+./zdExecuteScript.txt
