@@ -52,7 +52,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   // Read input data into vector
 
   Assembler::PassOne(in_scanner);
-  Utils::log_stream << "\nDumping mach. code" << endl;
+  Utils::log_stream << "\nPASS ONE" << endl;
   for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     out_stream << codelines_.at(i).ToString() << "\n";
@@ -70,7 +70,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   //////////////////////////////////////////////////////////////////////////
 
   Assembler::PassTwo();
-  Utils::log_stream << "\nDumping mach. code" << endl;
+  Utils::log_stream << "\nPASS TWO" << endl;
   for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     out_stream << codelines_.at(i).ToString() << "\n";
@@ -211,15 +211,15 @@ void Assembler::PassOne(Scanner& in_scanner) {
     codelines_.push_back(code_line);
     if (label != "   ") {
       Symbol symbol_ = Symbol(label, pc_in_assembler_);
-      symboltable_[label] = symbol_;
+      symboltable_.insert({label, symbol_});
 }
 
     line_counter++;
     pc_in_assembler_++;
   }
   // Dump code lines
-  cout << endl << "DUMPING CODE LINES" << endl;
-  this->PrintCodeLines();
+  // cout << endl << "DUMPING CODE LINES" << endl;
+  // this->PrintCodeLines();
     
 
 #ifdef EBUG

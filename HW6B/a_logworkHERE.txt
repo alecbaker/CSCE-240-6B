@@ -1,0 +1,29 @@
+JAMES THOMPSON:
+
+
+
+ALEC BAKER:
+
+
+
+CHRISTOPHER WALLS:
+
+
+
+JAMES COCHRAN:
+NOVEMER 28 5pm - 11pm:
+  - Completed symboltable_ map functionality. 
+  - With assistance from Ethan and Chris, completed PassOne() and PassTwo()
+    funtionality, to the extent they work on source codes that have no 
+    errors within them.
+NOVEMBER 29 12am - 1am 
+  - Changed the way we initialized maps
+  - added this files: a_logworkHERE.txt & a_whatNEXT.txt in 'HW6B' directory
+    and added mycpplint to 'group8_hwprog6' directory 
+  - Made our files only dump codeline and symboltable_ contents to log_stream
+    and still dumps some to out_stream, but correct execution will show in 
+    'zmylog.txt' assuming you have followed something along the lines of:
+     make -f ../../makefile 
+    ./Aprog ../../ytestban.txt zmyout zmylog.txt
+    in the 'group8_hwprog6' directory.
+ETHAN WEAVER:
