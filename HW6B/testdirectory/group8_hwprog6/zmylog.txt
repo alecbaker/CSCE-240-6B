@@ -4,37 +4,44 @@ Main: logfile 'zmylog.txt
 Reading machine code
     0                                           *23 567 9 123 56789 1
     1                                           *ll mmm a sss hhhhh * comment
-    3    0  000000000000 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
-    4    1  000000000001 xxxx xxxx xxxx xxxx TOP    WRT             * write the acc to output
-    5    2  000000000010 xxxx xxxx xxxx xxxx        ADD   ONE       * increment the acc
-    6    3  000000000011 xxxx xxxx xxxx xxxx        STC   LUP       * store back the loop variable
-    7    4  000000000100 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
-    8    5  000000000101 xxxx xxxx xxxx xxxx        BAN   TOP       * add in the second addend
-    9    6  000000000110 xxxx xxxx xxxx xxxx        LD    A         * load the loop variable
-   10    7  000000000111 xxxx xxxx xxxx xxxx        WRT             * write the acc to output
-   11    8  000000001000 xxxx xxxx xxxx xxxx        STP   ... .....
+    2    0  000000000000 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
+    3    1  000000000001 xxxx xxxx xxxx xxxx TOP    WRT             * write the acc to output
+    4    2  000000000010 xxxx xxxx xxxx xxxx        ADD   ONE       * increment the acc
+    5    3  000000000011 xxxx xxxx xxxx xxxx        STC   LUP       * store back the loop variable
+    6    4  000000000100 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
+    7    5  000000000101 xxxx xxxx xxxx xxxx        BAN   TOP       * add in the second addend
+    8    6  000000000110 xxxx xxxx xxxx xxxx        LD    A         * load the loop variable
+    9    7  000000000111 xxxx xxxx xxxx xxxx        WRT             * write the acc to output
+   10    8  000000001000 xxxx xxxx xxxx xxxx        STP   ... .....
    11                                           *
-   13    9  000000001001 xxxx xxxx xxxx xxxx LUP    HEX       .....
-   14   10  000000001010 xxxx xxxx xxxx xxxx ONE    HEX       .....
-   15   11  000000001011 xxxx xxxx xxxx xxxx A      HEX       .....
-   16   12  000000001100 xxxx xxxx xxxx xxxx        END   ... .....
+   12    9  000000001001 xxxx xxxx xxxx xxxx LUP    HEX       .....
+   13   10  000000001010 xxxx xxxx xxxx xxxx ONE    HEX       .....
+   14   11  000000001011 xxxx xxxx xxxx xxxx A      HEX       .....
+   15   12  000000001100 xxxx xxxx xxxx xxxx        END   ... .....
 
 
 Dumping mach. code
     0                                           *23 567 9 123 56789 1
     1                                           *ll mmm a sss hhhhh * comment
-    3    0  000000000000 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
-    4    1  000000000001 xxxx xxxx xxxx xxxx TOP    WRT             * write the acc to output
-    5    2  000000000010 xxxx xxxx xxxx xxxx        ADD   ONE       * increment the acc
-    6    3  000000000011 xxxx xxxx xxxx xxxx        STC   LUP       * store back the loop variable
-    7    4  000000000100 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
-    8    5  000000000101 xxxx xxxx xxxx xxxx        BAN   TOP       * add in the second addend
-    9    6  000000000110 xxxx xxxx xxxx xxxx        LD    A         * load the loop variable
-   10    7  000000000111 xxxx xxxx xxxx xxxx        WRT             * write the acc to output
-   11    8  000000001000 xxxx xxxx xxxx xxxx        STP   ... .....
+    2    0  000000000000 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
+    3    1  000000000001 xxxx xxxx xxxx xxxx TOP    WRT             * write the acc to output
+    4    2  000000000010 xxxx xxxx xxxx xxxx        ADD   ONE       * increment the acc
+    5    3  000000000011 xxxx xxxx xxxx xxxx        STC   LUP       * store back the loop variable
+    6    4  000000000100 xxxx xxxx xxxx xxxx        LD    LUP       * load the loop variable
+    7    5  000000000101 xxxx xxxx xxxx xxxx        BAN   TOP       * add in the second addend
+    8    6  000000000110 xxxx xxxx xxxx xxxx        LD    A         * load the loop variable
+    9    7  000000000111 xxxx xxxx xxxx xxxx        WRT             * write the acc to output
+   10    8  000000001000 xxxx xxxx xxxx xxxx        STP   ... .....
    11                                           *
-   13    9  000000001001 xxxx xxxx xxxx xxxx LUP    HEX       .....
-   14   10  000000001010 xxxx xxxx xxxx xxxx ONE    HEX       .....
-   15   11  000000001011 xxxx xxxx xxxx xxxx A      HEX       .....
-   16   12  000000001100 xxxx xxxx xxxx xxxx        END   ... .....
+   12    9  000000001001 xxxx xxxx xxxx xxxx LUP    HEX       .....
+   13   10  000000001010 xxxx xxxx xxxx xxxx ONE    HEX       .....
+   14   11  000000001011 xxxx xxxx xxxx xxxx A      HEX       .....
+   15   12  000000001100 xxxx xxxx xxxx xxxx        END   ... .....
+
+SYMBOL TABLE
+    SYM LOC FLAGS
+SYM A   11
+SYM LUP 9
+SYM ONE 10
+SYM TOP 1
 Main: Ending execution

@@ -18,7 +18,8 @@ Symbol::Symbol() {
  * Constructor
 **/
 Symbol::Symbol(string text, int programcounter) {
-  // code goes here
+  text_ = text;
+  location_ = programcounter;
 }
 
 /******************************************************************************
