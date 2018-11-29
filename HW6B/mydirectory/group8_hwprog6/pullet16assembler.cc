@@ -53,7 +53,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nDumping mach. code" << endl;
-  for ( int i = 0; i < codelines_.size(); i++ ) {
+  for (int i = 0; i < codelines_.size(); i++ ) {
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     out_stream << codelines_.at(i).ToString() << "\n";
   }
@@ -62,16 +62,36 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
     Utils::log_stream << "SYM " << it->first << " " 
                       << it->second.GetLocation() << endl;
-}
+  }  
 
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
   //////////////////////////////////////////////////////////////////////////
+
+  Assembler::PassTwo();
+  Utils::log_stream << "\nDumping mach. code" << endl;
+  for (int i = 0; i < codelines_.size(); i++ ) {
+    Utils::log_stream << codelines_.at(i).ToString() << "\n";
+    out_stream << codelines_.at(i).ToString() << "\n";
+  }
+  Utils::log_stream << endl;
+  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
+  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
+    Utils::log_stream << "SYM " << it->first << " "
+                      << it->second.GetLocation() << endl;
+  }
+
   // Read binary, set up map of machine code and dump machine code
   // this->PrintMachineCode(binary_filename, out_stream);
   // Dump the results.
+   
+  // Assembler::PrintMachineCode(binary_filename, out_stream);
 
+  // Subsitute 3rd block for logfile, machine code section 
+
+  Utils::log_stream << endl << endl << endl <<"MACHINE CODE" << endl;
+  Utils::log_stream << "DECIDED TO TAKE BREAK HERE" << endl;
 #ifdef EBUG
   Utils::log_stream << "leave Assemble" << endl;
 #endif
@@ -215,7 +235,49 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
+   // int pc = 0;
+   for (int i = 0; i < codelines_.size(); ++i) {
+     if (codelines_.at(i).IsAllComment() == false) {
+      // cout << " I " << i << endl;
+      string mnemonic = codelines_.at(i).GetMnemonic();
+      string machine_code_ = "";
+      machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
+      string addr = codelines_.at(i).GetAddr();
+      if (addr == "*") 
+        machine_code_ += "1";
+      else 
+        machine_code_ += "0";
+    
+      if (mnemonic == "RD ") { 
+        machine_code_ += "000000000001";
+    } else if (mnemonic == "STP") { 
+        machine_code_ += "000000000010";
+    } else if (mnemonic == "WRT") {
+        machine_code_ += "000000000011";
+    } else if (mnemonic == "END") {
+        machine_code_ += "000011110000";
+    } else if (mnemonic == "HEX") {
+        Hex hex = Hex();
+        hex = codelines_.at(i).GetHexObject();
+        int hex_ = hex.GetValue();
+        // cout << "INT HEX " << hex_ << endl;
+        string addr_string = DABnamespace::DecToBitString(hex_, 12);
+        machine_code_ += addr_string;
 
+        
+    } else {
+        string sym = codelines_.at(i).GetSymOperand();
+        int loc = symboltable_.at(sym).GetLocation();
+        string addr_string = DABnamespace::DecToBitString(loc, 12);
+        machine_code_ += addr_string;
+}
+
+      codelines_.at(i).SetMachineCode(machine_code_);
+      // machinecode_[pc] = machine_code_;
+      // pc++;
+      // cout << "CODE " << codelines_.at(i).GetCode() << endl;
+   }
+ }
 #ifdef EBUG
   Utils::log_stream << "leave PassTwo" << endl;
 #endif

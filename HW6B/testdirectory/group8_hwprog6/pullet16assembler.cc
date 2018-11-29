@@ -57,19 +57,13 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
     Utils::log_stream << codelines_.at(i).ToString() << "\n";
     out_stream << codelines_.at(i).ToString() << "\n";
   }
-  Utils::log_stream << endl;
-  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
-  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " " 
-                      << it->second.GetLocation() << endl;
-}
 
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
   //////////////////////////////////////////////////////////////////////////
   // Read binary, set up map of machine code and dump machine code
-  // this->PrintMachineCode(binary_filename, out_stream);
+//  this->PrintMachineCode(binary_filename, out_stream);
   // Dump the results.
 
 #ifdef EBUG
@@ -146,15 +140,15 @@ void Assembler::PassOne(Scanner& in_scanner) {
     int line_counter = 0;
   while(true) {
     string line = in_scanner.NextLine();
+    line_counter++;
     // Break when we read in an empty line
     if (line == "")
       break;
     // Skip first line if it contains column headers
     if (line.at(0) == '*') {
       CodeLine comment_line = CodeLine();
-      comment_line.SetCommentsOnly(line_counter, line);
+      comment_line.SetCommentsOnly(line_counter-1, line);
       codelines_.push_back(comment_line);
-      line_counter++;
       continue;
     }
     // Set attribute defaults
@@ -166,7 +160,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
     string hexoperand = "";
     string code = "";
     // Get machinecode according to line number
-    code = machinecode_.find(line_counter)->second;
+    code = machinecode_.find(line_counter-1)->second;
     if (code == "")
       code = "nullcode";
     // Set attributes according to line length
@@ -189,18 +183,12 @@ void Assembler::PassOne(Scanner& in_scanner) {
                           mnemonic, addr, symoperand, hexoperand,
                           comments, code);
     codelines_.push_back(code_line);
-    if (label != "   ") {
-      Symbol symbol_ = Symbol(label, pc_in_assembler_);
-      symboltable_[label] = symbol_;
-}
-
-    line_counter++;
     pc_in_assembler_++;
   }
   // Dump code lines
   cout << endl << "DUMPING CODE LINES" << endl;
   this->PrintCodeLines();
-    
+  
 
 #ifdef EBUG
   Utils::log_stream << "leave PassOne" << endl;

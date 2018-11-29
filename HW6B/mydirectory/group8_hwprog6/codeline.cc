@@ -88,28 +88,21 @@ string CodeLine::GetSymOperand() const {
  * Boolean indicator of the presence of a label.
 **/
 bool CodeLine::HasLabel() const {
-  bool has_label_ = true;
+  bool something = true;
+  if (label_.length() == 0) 
+    something = false;
+  return something;
+} 
 
-  if (label_ != "")
-    has_label_ = true;
-  else
-    has_label_ = false;
-
-  return has_label_;
-}
 
 /***************************************************************************
  * Boolean indicator of the presence of a symbolic operand.
 **/
 bool CodeLine::HasSymOperand() const {
-  bool has_symoperand_ = true; 
-
-  if (symoperand_ != "")
-    has_symoperand_ = true;
-  else
-    has_symoperand_ = false;
-
-  return has_symoperand_;
+  bool something = true;
+  if (symoperand_.length() == 0)
+    something = false;
+  return something;
 }
 
 /***************************************************************************
@@ -182,7 +175,6 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
  *   messages - the string of messages
 **/
 void CodeLine::SetErrorMessages(string messages) {
-  error_messages_ = messages;
 }
 
 /***************************************************************************
@@ -204,7 +196,6 @@ void CodeLine::SetMachineCode(string code) {
  *   what - the value to set as the PC
 **/
 void CodeLine::SetPC(int what) {
-  pc_ = what;
 }
 
 /***************************************************************************

@@ -117,7 +117,8 @@ string GetBitsFromMnemonic(string mnemonic) {
   mnem_to_code["RD "] = "111";
   mnem_to_code["RD"] = "111";
   mnem_to_code["WRT"] = "111";
-
+  mnem_to_code["HEX"] = "000";
+  mnem_to_code["END"] = "000";
   return mnem_to_code.at(mnemonic);
 
 #ifdef EBUG

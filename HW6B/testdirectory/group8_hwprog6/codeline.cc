@@ -32,7 +32,11 @@ CodeLine::~CodeLine() {
  * Accessor for the 'addr_'.
 **/
 string CodeLine::GetAddr() const {
-  return addr_;
+  string returnvalue;
+
+  // code goes here
+  // }
+  return returnvalue;
 }
 
 /***************************************************************************
@@ -88,28 +92,22 @@ string CodeLine::GetSymOperand() const {
  * Boolean indicator of the presence of a label.
 **/
 bool CodeLine::HasLabel() const {
-  bool has_label_ = true;
+  bool something = true;
 
-  if (label_ != "")
-    has_label_ = true;
-  else
-    has_label_ = false;
+  // code here
 
-  return has_label_;
+  return something;
 }
 
 /***************************************************************************
  * Boolean indicator of the presence of a symbolic operand.
 **/
 bool CodeLine::HasSymOperand() const {
-  bool has_symoperand_ = true; 
+  bool something = true; 
 
-  if (symoperand_ != "")
-    has_symoperand_ = true;
-  else
-    has_symoperand_ = false;
+  // code here
 
-  return has_symoperand_;
+  return something;
 }
 
 /***************************************************************************
@@ -182,7 +180,6 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
  *   messages - the string of messages
 **/
 void CodeLine::SetErrorMessages(string messages) {
-  error_messages_ = messages;
 }
 
 /***************************************************************************
@@ -193,7 +190,6 @@ void CodeLine::SetErrorMessages(string messages) {
  *   code - the code to set
 **/
 void CodeLine::SetMachineCode(string code) {
-  code_ = code;
 }
 
 /***************************************************************************
@@ -204,7 +200,6 @@ void CodeLine::SetMachineCode(string code) {
  *   what - the value to set as the PC
 **/
 void CodeLine::SetPC(int what) {
-  pc_ = what;
 }
 
 /***************************************************************************
