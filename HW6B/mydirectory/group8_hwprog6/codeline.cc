@@ -4,7 +4,7 @@
  * Class 'CodeLine' as a container for one line of code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Jane Random Hacker
+ * Used with permission and modified by: "Ethan JC Weaver"
  * Date: 17 August 2018
 **/
 
@@ -34,8 +34,8 @@ CodeLine::~CodeLine() {
 string CodeLine::GetAddr() const {
   string returnvalue;
 
-  code goes here
-  }
+  // code goes here
+  // }
   return returnvalue;
 }
 
@@ -92,14 +92,22 @@ string CodeLine::GetSymOperand() const {
  * Boolean indicator of the presence of a label.
 **/
 bool CodeLine::HasLabel() const {
-  return something
+  bool something = true;
+
+  // code here
+
+  return something;
 }
 
 /***************************************************************************
  * Boolean indicator of the presence of a symbolic operand.
 **/
 bool CodeLine::HasSymOperand() const {
-  return something
+  bool something = true; 
+
+  // code here
+
+  return something;
 }
 
 /***************************************************************************
@@ -151,6 +159,17 @@ void CodeLine::SetCodeLine(int linecounter, int pc, string label,
  *   line - the code line that is taken to be all comments
 **/
 void CodeLine::SetCommentsOnly(int linecounter, string line) {
+  is_all_comment_ = true;
+  linecounter_ = linecounter;
+  comments_ = line;
+  code_ = "nullcode";
+  label_ = "nulllabel";
+  mnemonic_ = "nullmnemonic";
+  addr_ = " ";
+  symoperand_ = "nullsymoperand";
+  
+  
+  
 }
 
 /***************************************************************************

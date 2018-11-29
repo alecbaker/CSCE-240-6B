@@ -50,14 +50,12 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   // HW6A Read ASCII input data and dump
   // Read input data into vector
-  vector<string> ascii_vector;
-  while (in_scanner.HasNext()) {
-    ascii_vector.push_back(in_scanner.NextLine());
-  }
-  // Dump input data from vector
-  cout << endl << "DUMPING ASCII FROM VECTOR" << endl;
-  for (int i = 0; i < ascii_vector.size(); i++) {
-     cout << ascii_vector.at(i) << endl;
+
+  Assembler::PassOne(in_scanner);
+  Utils::log_stream << "\nDumping mach. code" << endl;
+  for ( int i = 0; i < codelines_.size(); i++ ) {
+    Utils::log_stream << codelines_.at(i).ToString() << "\n";
+    out_stream << codelines_.at(i).ToString() << "\n";
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -65,7 +63,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   // Generate the machine code.
   //////////////////////////////////////////////////////////////////////////
   // Read binary, set up map of machine code and dump machine code
-  this->PrintMachineCode(binary_filename, out_stream);
+//  this->PrintMachineCode(binary_filename, out_stream);
   // Dump the results.
 
 #ifdef EBUG
@@ -136,21 +134,23 @@ void Assembler::PassOne(Scanner& in_scanner) {
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
   // the scanner.NextLine() function to strip the beggining whitespaces
-  /*
+ 
+  Utils::log_stream << "\nReading machine code" << endl;
     pc_in_assembler_ = 0;
     int line_counter = 0;
-    while(true) {
+  while(true) {
     string line = in_scanner.NextLine();
     line_counter++;
-
     // Break when we read in an empty line
-   if (line == "")
+    if (line == "")
       break;
-
     // Skip first line if it contains column headers
-    if (line.at(0) == '*')
+    if (line.at(0) == '*') {
+      CodeLine comment_line = CodeLine();
+      comment_line.SetCommentsOnly(line_counter-1, line);
+      codelines_.push_back(comment_line);
       continue;
-
+    }
     // Set attribute defaults
     string label = "nulllabel";
     string mnemonic = "nullmnemonic";
@@ -159,12 +159,10 @@ void Assembler::PassOne(Scanner& in_scanner) {
     string addr = "";
     string hexoperand = "";
     string code = "";
-
     // Get machinecode according to line number
     code = machinecode_.find(line_counter-1)->second;
     if (code == "")
       code = "nullcode";
-
     // Set attributes according to line length
     if (line.size() >= 2) 
       label = line.substr(0,3);
@@ -179,7 +177,6 @@ void Assembler::PassOne(Scanner& in_scanner) {
     if (line.size() >= 20) 
       comments = line.substr(20, line.size()); 
     
-
     // Set up new CodeLine and store in codelines vector
     CodeLine code_line = CodeLine();
     code_line.SetCodeLine(line_counter, pc_in_assembler_, label,
@@ -188,11 +185,10 @@ void Assembler::PassOne(Scanner& in_scanner) {
     codelines_.push_back(code_line);
     pc_in_assembler_++;
   }
-
   // Dump code lines
   cout << endl << "DUMPING CODE LINES" << endl;
   this->PrintCodeLines();
-  */
+  
 
 #ifdef EBUG
   Utils::log_stream << "leave PassOne" << endl;
@@ -241,7 +237,6 @@ void Assembler::PrintCodeLines() {
 /***************************************************************************
  * Function 'PrintMachineCode'.
  * This function prints the machine code
-
    Binary read code is based off 
    Duncan Buell's posted solution to HW5
 **/
