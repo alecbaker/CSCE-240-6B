@@ -76,6 +76,10 @@ bool Symbol::CheckInvalid() const {
   bool returnvalue = false;  // false means no, not invalid
 
   // code goes here
+  // First letter must be aplha
+  // No space in the middle of the symbol
+  // Entire symbol can only be aphanumberic 
+  // Either use isalnum() or compare each character to ascii values?
 
   return returnvalue;
 }

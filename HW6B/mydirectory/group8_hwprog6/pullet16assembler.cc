@@ -231,10 +231,22 @@ void Assembler::PassOne(Scanner& in_scanner) {
     // cout << code_line.GetHexObject().IsNull() << endl;
     if (label != "   ") {
       Symbol symbol_ = Symbol(label, pc_in_assembler_);
+      map<string, Symbol>::iterator it; 
+      it = symboltable_.find(label);
+      // This block checks if the symbol has been defined more than once, if
+      // not, then insert the symbol into the symboltable_ map. 
+      if (it != symboltable_.end()) {
+        symbol_.SetMultiply();
+    } else {
       symboltable_.insert({label, symbol_});
     }
-    if ( symoperand == "END" ) {
+  }
+    // if finds end, sets the found end statement to true, if this statement
+    // is false after reading the entirety of the source code, then Error,
+    // no end statement
+    if (mnemonic == "END" ) {
       pc_in_assembler_--;
+      found_end_statement_ = true; 
     }
 
     line_counter++;
@@ -266,7 +278,9 @@ void Assembler::PassTwo() {
       string machine_code_ = "";
       machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
       string addr = codelines_.at(i).GetAddr();
-      if (addr == "*") 
+      // Added DS because noticed address flag was always set in log files
+      // When dealing with DS. 
+      if (addr == "*" || mnemonic == "DS ") 
         machine_code_ += "1";
       else 
         machine_code_ += "0";
@@ -279,24 +293,50 @@ void Assembler::PassTwo() {
         machine_code_ += "000000000011";
     } else if (mnemonic == "END") {
         machine_code_ += "000011110000";
+      // Not sure if this is correct machine code for DS 
+    } else if (mnemonic == "DS ") {
+        machine_code_ += "000000000000";
+        Hex hex = Hex();
+        hex = codelines_.at(i).GetHexObject();
+        int hex_value_ = hex.GetValue();
+        // Checks if DS to a legal address
+        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+          pc = pc + hex_value_;
+        else 
+          cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
+               << "memory" <<  endl;
+      // Not sure if this is correct machine code for ORG 
+    } else if (mnemonic == "ORG") {
+        machine_code_ += "110011001100";
+        Hex hex = Hex();
+        hex = codelines_.at(i).GetHexObject();
+        int hex_value_ = hex.GetValue();
+        // checks if ORG to a legal address
+        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+          pc = hex_value_;
+        else
+          cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
+               << "memory" <<  endl;
     } else if (mnemonic == "HEX") {
         machine_code_ = "";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
-        int hex_ = hex.GetValue();
+        int hex_value_ = hex.GetValue();
         // cout << "INT HEX " << hex_ << endl;
         // string addr_string = DABnamespace::DecToBitString(hex_, 12);
-        string addr_string = DABnamespace::DecToBitString(hex_, 16);
+        string addr_string = DABnamespace::DecToBitString(hex_value_, 16);
         // cout << "hex bin " << addr_string << "\n";
         machine_code_ += addr_string;
-
-        
     } else {
         string sym = codelines_.at(i).GetSymOperand();
+        // map<string, Symbol>::iterator it;
+        // it = symboltable_.find(sym);
+        // if (it == symboltable_.end()) {
+          // cout << "UNDEFINED SYMBOL " << sym << endl;
         int loc = symboltable_.at(sym).GetLocation();
         string addr_string = DABnamespace::DecToBitString(loc, 12);
         machine_code_ += addr_string;
-}
+    } 
 
       codelines_.at(i).SetMachineCode(machine_code_);
       if ( codelines_.at(i).GetMnemonic() != "END" ) {

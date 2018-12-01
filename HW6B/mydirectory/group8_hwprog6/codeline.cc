@@ -252,14 +252,10 @@ string CodeLine::ToString() const {
 
   if (hex_.IsNotNull()) {
   // Added this so log would print hex correctly
-    if (mnemonic_ == "HEX") {
+    if (mnemonic_ == "HEX") 
       s += " " + hex_.ToString();
-}
-    s += " " + Utils::Format(".....", 5);
-    // s += " " + hex_.ToString();
 } else {
-    // s += " " + Utils::Format(".....", 5);
-    s += " " + hex_.ToString();
+    s += " " + Utils::Format(".....", 5);
   }
 
   if (comments_ != "nullcomments") {

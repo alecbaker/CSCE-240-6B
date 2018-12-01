@@ -1,0 +1,82 @@
+Main: Beginning execution
+Main: logfile 'zdatalog.txt
+
+
+PASS ONE
+    0                                           *23 567 9 123 56789 1
+    1                                           *ll mmm a sss hhhhh * comment
+    2    0  000000000000 1100 1100 1100 1100        LD    IDX       * load ACC with value at IDX
+    3    1  000000000001 1100 1100 1100 1100        WRT             * write it
+    4                                           *
+    5    2  000000000010 1100 1100 1100 1100 TOP    ADD   N         * add in N
+    6    3  000000000011 1100 1100 1100 1100        ADD   ONE       * add in ONE
+    7    4  000000000100 1100 1100 1100 1100        WRT             * write the new value
+    8    5  000000000101 1100 1100 1100 1100        STC   NN        * store the new value
+    9                                           *
+   10    6  000000000110 1100 1100 1100 1100 BAD    HEX       -0002 * bad data location
+   11    7  000000000111 1100 1100 1100 1100        STP   ... .....
+   12                                           *
+   13    8  000000001000 1100 1100 1100 1100 IDX    HEX       -0002 * loop index
+   14    9  000000001001 1100 1100 1100 1100 ONE    HEX       +0001 * we need a constant 1
+   15   10  000000001010 1100 1100 1100 1100 N      HEX       +0001 * 
+   16   11  000000001011 1100 1100 1100 1100 NN     HEX       +0009 *
+   17   12  000000001100 1100 1100 1100 1100        END   ... .....
+
+SYMBOL TABLE
+    SYM LOC FLAGS
+SYM BAD   6
+SYM IDX   8
+SYM N    10
+SYM NN   11
+SYM ONE   9
+SYM TOP   2
+
+
+
+PASS TWO
+    0                                           *23 567 9 123 56789 1
+    1                                           *ll mmm a sss hhhhh * comment
+    2    0  000000000000 1010 0000 0000 1000        LD    IDX       * load ACC with value at IDX
+    3    1  000000000001 1110 0000 0000 0011        WRT             * write it
+    4                                           *
+    5    2  000000000010 1000 0000 0000 1010 TOP    ADD   N         * add in N
+    6    3  000000000011 1000 0000 0000 1001        ADD   ONE       * add in ONE
+    7    4  000000000100 1110 0000 0000 0011        WRT             * write the new value
+    8    5  000000000101 0100 0000 0000 1011        STC   NN        * store the new value
+    9                                           *
+   10    6  000000000110 1111 1111 1111 1110 BAD    HEX       -0002 * bad data location
+   11    7  000000000111 1110 0000 0000 0010        STP   ... .....
+   12                                           *
+   13    8  000000001000 1111 1111 1111 1110 IDX    HEX       -0002 * loop index
+   14    9  000000001001 0000 0000 0000 0001 ONE    HEX       +0001 * we need a constant 1
+   15   10  000000001010 0000 0000 0000 0001 N      HEX       +0001 * 
+   16   11  000000001011 0000 0000 0000 1001 NN     HEX       +0009 *
+   17   12  000000001100 0000 0000 1111 0000        END   ... .....
+
+SYMBOL TABLE
+    SYM LOC FLAGS
+SYM BAD   6
+SYM IDX   8
+SYM N    10
+SYM NN   11
+SYM ONE   9
+SYM TOP   2
+
+
+
+MACHINE CODE
+enter PrintMachineCode zdataout.bin
+   0 000000000000 1010 0000 0000 1000
+   1 000000000001 1110 0000 0000 0011
+   2 000000000010 1000 0000 0000 1010
+   3 000000000011 1000 0000 0000 1001
+   4 000000000100 1110 0000 0000 0011
+   5 000000000101 0100 0000 0000 1011
+   6 000000000110 1111 1111 1111 1110
+   7 000000000111 1110 0000 0000 0010
+   8 000000001000 1111 1111 1111 1110
+   9 000000001001 0000 0000 0000 0001
+  10 000000001010 0000 0000 0000 0001
+  11 000000001011 0000 0000 0000 1001
+
+Main: Ending execution

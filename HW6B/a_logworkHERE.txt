@@ -26,6 +26,10 @@ NOVEMBER 29 12am - 1am
      make -f ../../makefile 
     ./Aprog ../../ytestban.txt zmyout zmylog.txt
     in the 'group8_hwprog6' directory.
+DECEMBER 1 10am - 11am 
+  - Added DS and ORG functionality, that needs to be tested more.
+  - Code catches if a symbol has been multiply defined.
+  - Added Buell's example source codes and respected logs in the HW6B directory.
 ETHAN WEAVER:
 November 29 10:30 - 12:15
   - Made it print the machine code to zmylog.txt
