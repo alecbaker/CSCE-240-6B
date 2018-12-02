@@ -50,17 +50,17 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   // HW6A Read ASCII input data and dump
   // Read input data into vector
-
+  
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
   cout << "pass one complete" << endl;
-  //////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////i/////////////
   // Pass two
   // Generate the machine code.
   //////////////////////////////////////////////////////////////////////////
-
+  
   Assembler::PassTwo();
   Utils::log_stream << "\nPASS TWO" << endl;
   this->PrintCodeLines();
@@ -78,20 +78,52 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   // Subsitute 3rd block for logfile, machine code section 
 
-  Utils::log_stream << "\n\n\n" <<"MACHINE CODE" << endl;
-  // for ( int i = 0; i < pc_in_assembler_-1; i++ ) {
-  for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
-    int i = iter->first;
-    string pretty_code = "";
-    pretty_code = Utils::Format(i, 3) + " ";
-    pretty_code += Utils::Format(DABnamespace::DecToBitString(i, 12), 12);
-    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(0,4), 4);
-    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(4, 4), 4);
-    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(8, 4), 4);
-    pretty_code += " " + Utils::Format(machinecode_.at(i).substr(12, 4), 4);
-    Utils::log_stream << pretty_code << "\n";
-    out_stream << machinecode_.at(i) << "\n";
+  // dump machine code
+  if ( !has_an_error_ ) {
+    vector<int> dec;
+    for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter)
+    {
+      int i = iter->first;
+      int twos_comp;
+      dec.push_back(DABnamespace::BitStringToDec(machinecode_.at(i)));
+      twos_comp = (dec.at(i) > 32768) ? dec.at(i) - 65536 : dec.at(i);
+      dec.at(i) = twos_comp;
+      out_stream << machinecode_.at(i) << endl;
+    }
+    // Utils::log_stream << "Dumping to " << binary_filename << endl;
+    std::ofstream output(binary_filename, std::ofstream::binary);
+    if (output) { 
+      char* buffer = new char[8];
+      for ( int i = 0; i < dec.size(); i++ ) {
+        int *p = &dec.at(i);
+        buffer = reinterpret_cast<char*>(p);
+        output.write(buffer, 2);
+      }
+      output.close(); 
+    }    // end of if-statement for binary file
+    Utils::log_stream << "\n\n\n" << "MACHINE CODE" << endl;
+    PrintMachineCode(binary_filename, out_stream);  
+  } else {
+    Utils::log_stream << "\n\n\n";
+    Utils::log_stream << "ERRORS EXIST\nNO MACHINE CODE GENERATED" << endl;
   }
+  // for ( int i = 0; i < pc_in_assembler_-1; i++ ) {
+  /**
+  if ( !has_an_error_ ) {
+    for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
+      int i = iter->first;
+      string pretty_code = "";
+      pretty_code = Utils::Format(i, 3) + " ";
+      pretty_code += Utils::Format(DABnamespace::DecToBitString(i, 12), 12);
+      pretty_code += " " + Utils::Format(machinecode_.at(i).substr(0,4), 4);
+      pretty_code += " " + Utils::Format(machinecode_.at(i).substr(4, 4), 4);
+      pretty_code += " " + Utils::Format(machinecode_.at(i).substr(8, 4), 4);
+      pretty_code += " " + Utils::Format(machinecode_.at(i).substr(12, 4), 4);
+      Utils::log_stream << pretty_code << "\n";
+      // out_stream << machinecode_.at(i) << "\n";
+    }
+  }
+  **/
   // Utils::log_stream << "DECIDED TO TAKE BREAK HERE" << endl;
 #ifdef EBUG
   Utils::log_stream << "leave Assemble" << endl;
@@ -285,6 +317,23 @@ void Assembler::PassTwo() {
         machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
         // string addr = codelines_.at(i).GetAddr();
       }
+      
+      string sym = codelines_.at(i).GetSymOperand();
+      if (sym.length() < 2)
+        sym += "  ";
+      else if (sym.length() < 3)
+        sym += " ";
+      if ( sym != "   "  && sym != "nullsymoperand" ) {
+        map<string, Symbol>::iterator it; 
+        it = symboltable_.find(sym);
+        if (it == symboltable_.end()) {
+          cout << "UNDEFINED SYMBOL " << sym << endl;
+          string error_message = "***** ERROR -- SYMBOL " + sym + " IS UNDEFINED\n";
+          codelines_.at(i).SetErrorMessages(error_message);
+          pc_in_assembler_++;
+          continue;
+        }
+      }
 
       // Added DS because noticed address flag was always set in log files
       // When dealing with DS. 
@@ -351,15 +400,7 @@ void Assembler::PassTwo() {
           sym += "  ";
         else if (sym.length() < 3)
           sym += " "; 
-        map<string, Symbol>::iterator it;
-        it = symboltable_.find(sym);
-         if (it == symboltable_.end()) {
-           cout << "UNDEFINED SYMBOL " << sym << endl;
-           string error_message = "***** ERROR -- SYMBOL " + sym + " IS UNDEFINED\n";
-           codelines_.at(i).SetErrorMessages(error_message);
-           pc_in_assembler_++;
-           continue;
-         }
+   
         int loc = symboltable_.at(sym).GetLocation();
 
         string addr_string = DABnamespace::DecToBitString(loc, 12);
@@ -422,23 +463,30 @@ void Assembler::PrintMachineCode(string binary_filename,
   int length = input.tellg();
   input.seekg(0, input.beg);
   char* inputbuffer = new char[2];
+
+  vector<string> machcode_frombin;  
+
   // Read in binary
   for (int i = 0; i < length/2; i++) {
     input.read(inputbuffer, 2);
     // Convert binary to ASCII and store in machinecode_ with line number
     int16_t valueread = *(reinterpret_cast<int16_t*>(inputbuffer));
     string converted_binary = DABnamespace::DecToBitString(valueread, 16);
-    machinecode_.insert(std::pair<int,string>(i,converted_binary));
+    // machinecode_.insert(std::pair<int,string>(i,converted_binary));
+    machcode_frombin.push_back(converted_binary);
   }
   input.close();
 
   // Dump converted binary
   cout << endl << "DUMPING CONVERTED BINARY" << endl;
-  for (int i = 0; i < machinecode_.size(); i++) {
+  // for (int i = 0; i < machinecode_.size(); i++) {
+  for ( int i=0; i < machcode_frombin.size(); i++ ) {
     // out_stream << machinecode_.at(i) << endl;
-    cout << machinecode_.at(i) << endl;
+    // Utils::log_stream << machinecode_.at(i) << endl;
+    // cout << machcode_frombin.at(i) << endl;
+    Utils::log_stream << machcode_frombin.at(i) << endl;
   }
-  cout << endl;
+  Utils::log_stream << endl;
 
 #ifdef EBUG
   Utils::log_stream << "leave PrintMachineCode" << endl;
@@ -513,6 +561,14 @@ void Assembler::UpdateSymbolTable(int pc, string symboltext) {
   Utils::log_stream << "enter UpdateSymbolTable" << endl;
 #endif
   symboltable_.at(symboltext).SetMultiply();
+  for ( int i = 0; i < codelines_.size(); ++i ) {
+    if ( codelines_.at(i).GetLabel() == symboltext) {
+      string error_message = "***** ERROR -- SYMBOL " + symboltext +
+                             " IS MULTIPLY DEFINED\n";
+      has_an_error_ = true;
+      codelines_.at(i).SetErrorMessages(error_message);
+    }
+  }
 #ifdef EBUG
   Utils::log_stream << "leave UpdateSymbolTable" << endl;
 #endif

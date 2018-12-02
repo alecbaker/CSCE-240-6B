@@ -44,7 +44,7 @@ class Assembler {
 
  private:
   bool found_end_statement_ = false;
-  bool has_an_error_;
+  bool has_an_error_ = false;
 
   const string kDummyCodeA = "1100110011001100";
   const string kDummyCodeB = "111100001111";
