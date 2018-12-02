@@ -43,7 +43,7 @@ class Assembler {
                 ofstream& out_stream);
 
  private:
-  bool found_end_statement_;
+  bool found_end_statement_ = false;
   bool has_an_error_;
 
   const string kDummyCodeA = "1100110011001100";

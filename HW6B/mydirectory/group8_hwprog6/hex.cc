@@ -55,7 +55,7 @@ Hex::~Hex() {
 string Hex::GetErrorMessages() const {
   string error_messages = "";
   if (is_invalid_) {
-    error_messages += "\n***** ERROR -- HEX " + text_ + " IS INVALID";
+    error_messages += "***** ERROR -- HEX " + text_ + " IS INVALID\n";
   }
   return error_messages;
 }

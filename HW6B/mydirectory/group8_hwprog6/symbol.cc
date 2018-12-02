@@ -77,7 +77,7 @@ bool Symbol::CheckInvalid() const {
   string new_error = "";
   // check if symbol is one - three characters long
   if (text_.size() > 3 || text_.size() < 1) {
-    new_error = "Symbol has invalid length \n";
+    new_error = "Symbol has invalid length";
     std::cout << text_ << " " << new_error;
     //error_messages_ += new_error;
     returnvalue = true;
@@ -85,7 +85,7 @@ bool Symbol::CheckInvalid() const {
 
   // check if symbol starts with alpha character
   if (!isalpha(text_.at(0))) {
-    new_error = "Symbol does not begin with Alpha Character \n";
+    new_error = "Symbol does not begin with Alpha Character";
     std::cout << text_ << " " << new_error;
     //error_messages_ += new_error;
     returnvalue = true;
@@ -94,7 +94,7 @@ bool Symbol::CheckInvalid() const {
   // check that all characters are alphanumberic
   for (int i = 0; i < text_.size(); i++) {
     if (text_.at(i) != ' ' && !isalnum(text_.at(i))) {
-      new_error = "Symbol has non alphanumeric character \n";
+      new_error = "Symbol has non alphanumeric character";
       //error_messages_ += new_error;
       std::cout << text_ << " " << new_error;
       returnvalue = true;

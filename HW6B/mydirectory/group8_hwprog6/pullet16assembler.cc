@@ -217,12 +217,17 @@ void Assembler::PassOne(Scanner& in_scanner) {
     // Check for symbol erros and add to symboltable
     if (label != "   ") {
       Symbol symbol = Symbol(label, pc_in_assembler_);
+      if (symbol.HasAnError()) {
+        string error_message = "***** ERROR -- SYMBOL " + label + " IS INVALID\n";
+        cout << error_message << endl;
+        codelines_.at(line_counter).SetErrorMessages(error_message);
+      }
       map<string, Symbol>::iterator it; 
       it = symboltable_.find(label);
       // This block checks if the symbol has been defined more than once, if
       // not, then insert the symbol into the symboltable_ map. 
       if (it != symboltable_.end()) {
-        symbol.SetMultiply();
+        this->UpdateSymbolTable(pc_in_assembler_, label);
     // Insert into symbol table if valid symbol
     } else {
       symboltable_.insert({label, symbol});
@@ -242,6 +247,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
     line_counter++;
     pc_in_assembler_++;
   }
+    
   // Dump code lines
   // cout << endl << "DUMPING CODE LINES" << endl;
   // this->PrintCodeLines();
@@ -263,13 +269,13 @@ void Assembler::PassTwo() {
    pc_in_assembler_ = 0;
    for (int i = 0; i < codelines_.size(); ++i) {
      if (codelines_.at(i).IsAllComment() == false) {
-      cout << " I " << i << endl;
       string mnemonic = codelines_.at(i).GetMnemonic();
 
       bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
-      cout << mnemonic << endl;
       if (!mnemonic_exists) {
+        string error_message = "***** ERROR -- MNEMONIC " + mnemonic + " IS INVALID\n";
         cout << "INVALID MNEMONIC " << mnemonic << endl;
+        codelines_.at(i).SetErrorMessages(error_message);
         pc_in_assembler_++;
         continue;
       }
@@ -294,18 +300,20 @@ void Assembler::PassTwo() {
     } else if (mnemonic == "END") {
         machine_code_ += "000011110000";
       // Not sure if this is correct machine code for DS 
-    } else if (mnemonic == "DS") {
+    } else if (mnemonic == "DS" || mnemonic == "DS ") {
         machine_code_ += "000000000000";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
         int hex_value_ = hex.GetValue();
-        cout << hex_value_ << endl;
         // Checks if DS to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
           pc_in_assembler_ += hex_value_;
-        else 
+        else { 
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
                << "memory" <<  endl;
+          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + "IS INVALID\n"; 
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
       // Not sure if this is correct machine code for ORG 
     } else if (mnemonic == "ORG") {
         machine_code_ += "110011001100";
@@ -315,13 +323,20 @@ void Assembler::PassTwo() {
         // checks if ORG to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
           pc_in_assembler_ = hex_value_;
-        else
+        else {
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
                << "memory" <<  endl;
+          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + " IS INVALID\n"; 
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
     } else if (mnemonic == "HEX") {
         machine_code_ = "";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
+        if (hex.HasAnError()){
+          string error_message = hex.GetErrorMessages();
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
         int hex_value_ = hex.GetValue();
         // cout << "INT HEX " << hex_ << endl;
         // string addr_string = DABnamespace::DecToBitString(hex_, 12);
@@ -330,7 +345,6 @@ void Assembler::PassTwo() {
         machine_code_ += addr_string;
     } else {
         string sym = codelines_.at(i).GetSymOperand();
-        cout << sym << " " << sym.length() << endl;
         if (sym.length() < 2)
           sym += "  ";
         else if (sym.length() < 3)
@@ -339,6 +353,8 @@ void Assembler::PassTwo() {
         it = symboltable_.find(sym);
          if (it == symboltable_.end()) {
            cout << "UNDEFINED SYMBOL " << sym << endl;
+           string error_message = "***** ERROR -- SYMBOL " + sym + " IS UNDEFINED\n";
+           codelines_.at(i).SetErrorMessages(error_message);
            pc_in_assembler_++;
            continue;
          }
@@ -438,8 +454,8 @@ void Assembler::PrintSymbolTable() {
   Utils::log_stream << endl;
   Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
   for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " "
-                      << it->second.GetLocation() << endl;
+    Utils::log_stream << "SYM " << " "
+                      << it->second.ToString() << endl;
   }
 #ifdef EBUG
   Utils::log_stream << "leave PrintSymbolTable" << endl;
@@ -494,7 +510,7 @@ void Assembler::UpdateSymbolTable(int pc, string symboltext) {
 #ifdef EBUG
   Utils::log_stream << "enter UpdateSymbolTable" << endl;
 #endif
-
+  symboltable_.at(symboltext).SetMultiply();
 #ifdef EBUG
   Utils::log_stream << "leave UpdateSymbolTable" << endl;
 #endif

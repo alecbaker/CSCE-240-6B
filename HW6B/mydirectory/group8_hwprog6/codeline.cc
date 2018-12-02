@@ -175,6 +175,7 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
  *   messages - the string of messages
 **/
 void CodeLine::SetErrorMessages(string messages) {
+  error_messages_ += messages + " ";
 }
 
 /***************************************************************************
@@ -270,7 +271,7 @@ string CodeLine::ToString() const {
 
   if ((error_messages_.length() > 0) &&
       (error_messages_ != "nullerrormessages")) {
-    s += error_messages_;
+    s += "\n" + error_messages_;
   }
 
 #ifdef EBUG
