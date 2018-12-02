@@ -118,23 +118,10 @@ string GetBitsFromMnemonic(string mnemonic) {
                                        {"WRT", "111"},
                                        {"HEX", "000"},
                                        {"END", "000"},
+                                       {"ORG", "110"},
+                                       {"DS ", "111"},
+                                       {"DS", "111"}
                                      };
-
-  // mnem_to_code["BAN"] = "000";
-  // mnem_to_code["SUB"] = "001";
-  // mnem_to_code["STC"] = "010";
-  // mnem_to_code["AND"] = "011";
-  // mnem_to_code["ADD"] = "100";
-  // mnem_to_code["LD "] = "101";
-  // mnem_to_code["LD"] = "101";
-  // mnem_to_code["BR "] = "110";
-  // mnem_to_code["BR"] = "110";
-  // mnem_to_code["STP"] = "111";
-  // mnem_to_code["RD "] = "111";
-  // mnem_to_code["RD"] = "111";
-  // mnem_to_code["WRT"] = "111";
-  // mnem_to_code["HEX"] = "000";
-  // mnem_to_code["END"] = "000";
   return mnem_to_code.at(mnemonic);
 
 #ifdef EBUG

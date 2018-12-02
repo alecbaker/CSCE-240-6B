@@ -145,7 +145,7 @@ string Assembler::GetUndefinedMessage(string badtext) {
  *
  * CAVEAT: We have deliberately forced symbols and mnemonics to have
  *         blank spaces at the end and thus to be all the same length.
- *         Symbols are three characters, possibly with one or two blank at end.
+ *         Symbols are three characters, possibly with one or two blank at end
  *         Mnemonics are three characters, possibly with one blank at end.
  *
  * Parameters:
@@ -270,6 +270,8 @@ void Assembler::PassTwo() {
    for (int i = 0; i < codelines_.size(); ++i) {
      if (codelines_.at(i).IsAllComment() == false) {
       string mnemonic = codelines_.at(i).GetMnemonic();
+      string machine_code_ = "";
+      string addr = codelines_.at(i).GetAddr();
 
       bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
       if (!mnemonic_exists) {
@@ -277,12 +279,12 @@ void Assembler::PassTwo() {
         cout << "INVALID MNEMONIC " << mnemonic << endl;
         codelines_.at(i).SetErrorMessages(error_message);
         pc_in_assembler_++;
-        continue;
+        // continue;
+      } else {
+        // string machine_code_ = "";
+        machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
+        // string addr = codelines_.at(i).GetAddr();
       }
-
-      string machine_code_ = "";
-      machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
-      string addr = codelines_.at(i).GetAddr();
 
       // Added DS because noticed address flag was always set in log files
       // When dealing with DS. 

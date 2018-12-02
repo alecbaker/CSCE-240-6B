@@ -175,6 +175,7 @@ void CodeLine::SetCommentsOnly(int linecounter, string line) {
  *   messages - the string of messages
 **/
 void CodeLine::SetErrorMessages(string messages) {
+  error_messages_ += messages + " ";
 }
 
 /***************************************************************************
@@ -251,9 +252,11 @@ string CodeLine::ToString() const {
   }
 
   if (hex_.IsNotNull()) {
-    s += " " + Utils::Format(".....", 5);
+  // Added this so log would print hex correctly
+    if (mnemonic_ == "HEX" || mnemonic_ == "DS " || mnemonic_ == "ORG") 
+      s += " " + hex_.ToString();
   } else {
-    s += " " + hex_.ToString();
+    s += " " + Utils::Format(".....", 5);
   }
 
   if (comments_ != "nullcomments") {
@@ -268,7 +271,7 @@ string CodeLine::ToString() const {
 
   if ((error_messages_.length() > 0) &&
       (error_messages_ != "nullerrormessages")) {
-    s += error_messages_;
+    s += "\n" + error_messages_;
   }
 
 #ifdef EBUG

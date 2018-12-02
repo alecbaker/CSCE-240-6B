@@ -35,7 +35,7 @@ class Symbol {
 
  private:
   int location_;
-  bool is_multiply_;
+  bool is_multiply_ = false;
   bool is_invalid_;
   string error_messages_;
   string text_;

@@ -53,17 +53,9 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
-  for (int i = 0; i < codelines_.size(); i++ ) {
-    Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    // out_stream << codelines_.at(i).ToString() << "\n";
-  }
-  Utils::log_stream << endl;
-  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
-  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " " 
-                      << it->second.GetLocation() << endl;
-  }  
-
+  this->PrintCodeLines();
+  this->PrintSymbolTable();
+  cout << "pass one complete" << endl;
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
@@ -71,16 +63,8 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassTwo();
   Utils::log_stream << "\nPASS TWO" << endl;
-  for (int i = 0; i < codelines_.size(); i++ ) {
-    Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    // out_stream << codelines_.at(i).ToString() << "\n";
-  }
-  Utils::log_stream << endl;
-  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
-  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " "
-                      << it->second.GetLocation() << endl;
-  }
+  this->PrintCodeLines();
+  this->PrintSymbolTable();
 
   // Printing the machine code to the log file.
   // At some point we need to take the machine code and dump to .bin and .txt
@@ -161,7 +145,7 @@ string Assembler::GetUndefinedMessage(string badtext) {
  *
  * CAVEAT: We have deliberately forced symbols and mnemonics to have
  *         blank spaces at the end and thus to be all the same length.
- *         Symbols are three characters, possibly with one or two blank at end.
+ *         Symbols are three characters, possibly with one or two blank at end
  *         Mnemonics are three characters, possibly with one blank at end.
  *
  * Parameters:
@@ -229,17 +213,41 @@ void Assembler::PassOne(Scanner& in_scanner) {
                           comments, code);
     codelines_.push_back(code_line);
     // cout << code_line.GetHexObject().IsNull() << endl;
+
+    // Check for symbol erros and add to symboltable
     if (label != "   ") {
-      Symbol symbol_ = Symbol(label, pc_in_assembler_);
-      symboltable_.insert({label, symbol_});
+      Symbol symbol = Symbol(label, pc_in_assembler_);
+      if (symbol.HasAnError()) {
+        string error_message = "***** ERROR -- SYMBOL " + label + " IS INVALID\n";
+        cout << error_message << endl;
+        codelines_.at(line_counter).SetErrorMessages(error_message);
+      }
+      map<string, Symbol>::iterator it; 
+      it = symboltable_.find(label);
+      // This block checks if the symbol has been defined more than once, if
+      // not, then insert the symbol into the symboltable_ map. 
+      if (it != symboltable_.end()) {
+        this->UpdateSymbolTable(pc_in_assembler_, label);
+    // Insert into symbol table if valid symbol
+    } else {
+      symboltable_.insert({label, symbol});
     }
-    if ( symoperand == "END" ) {
+  }
+    // if finds end, sets the found end statement to true, if this statement
+    // is false after reading the entirety of the source code, then Error,
+    // no end statement
+    if (mnemonic == "ORG" || mnemonic == "DS "){
+      this->SetNewPC(code_line);
       pc_in_assembler_--;
+    } else if (mnemonic == "END") {
+      pc_in_assembler_--;
+      found_end_statement_ = true; 
     }
 
     line_counter++;
     pc_in_assembler_++;
   }
+    
   // Dump code lines
   // cout << endl << "DUMPING CODE LINES" << endl;
   // this->PrintCodeLines();
@@ -258,20 +266,34 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
-   int pc = 0;
+   pc_in_assembler_ = 0;
    for (int i = 0; i < codelines_.size(); ++i) {
      if (codelines_.at(i).IsAllComment() == false) {
-      // cout << " I " << i << endl;
       string mnemonic = codelines_.at(i).GetMnemonic();
       string machine_code_ = "";
-      machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
       string addr = codelines_.at(i).GetAddr();
-      if (addr == "*") 
+
+      bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
+      if (!mnemonic_exists) {
+        string error_message = "***** ERROR -- MNEMONIC " + mnemonic + " IS INVALID\n";
+        cout << "INVALID MNEMONIC " << mnemonic << endl;
+        codelines_.at(i).SetErrorMessages(error_message);
+        pc_in_assembler_++;
+        // continue;
+      } else {
+        // string machine_code_ = "";
+        machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
+        // string addr = codelines_.at(i).GetAddr();
+      }
+
+      // Added DS because noticed address flag was always set in log files
+      // When dealing with DS. 
+      if (addr == "*" || mnemonic == "DS ") 
         machine_code_ += "1";
       else 
         machine_code_ += "0";
     
-      if (mnemonic == "RD ") { 
+      if (mnemonic == "RD") { 
         machine_code_ += "000000000001";
     } else if (mnemonic == "STP") { 
         machine_code_ += "000000000010";
@@ -279,30 +301,76 @@ void Assembler::PassTwo() {
         machine_code_ += "000000000011";
     } else if (mnemonic == "END") {
         machine_code_ += "000011110000";
+      // Not sure if this is correct machine code for DS 
+    } else if (mnemonic == "DS" || mnemonic == "DS ") {
+        machine_code_ += "000000000000";
+        Hex hex = Hex();
+        hex = codelines_.at(i).GetHexObject();
+        int hex_value_ = hex.GetValue();
+        // Checks if DS to a legal address
+        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+          pc_in_assembler_ += hex_value_;
+        else { 
+          cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
+               << "memory" <<  endl;
+          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + "IS INVALID\n"; 
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
+      // Not sure if this is correct machine code for ORG 
+    } else if (mnemonic == "ORG") {
+        machine_code_ += "110011001100";
+        Hex hex = Hex();
+        hex = codelines_.at(i).GetHexObject();
+        int hex_value_ = hex.GetValue();
+        // checks if ORG to a legal address
+        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+          pc_in_assembler_ = hex_value_;
+        else {
+          cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
+               << "memory" <<  endl;
+          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + " IS INVALID\n"; 
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
     } else if (mnemonic == "HEX") {
         machine_code_ = "";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
-        int hex_ = hex.GetValue();
+        if (hex.HasAnError()){
+          string error_message = hex.GetErrorMessages();
+          codelines_.at(i).SetErrorMessages(error_message);
+        }
+        int hex_value_ = hex.GetValue();
         // cout << "INT HEX " << hex_ << endl;
         // string addr_string = DABnamespace::DecToBitString(hex_, 12);
-        string addr_string = DABnamespace::DecToBitString(hex_, 16);
+        string addr_string = DABnamespace::DecToBitString(hex_value_, 16);
         // cout << "hex bin " << addr_string << "\n";
         machine_code_ += addr_string;
-
-        
     } else {
         string sym = codelines_.at(i).GetSymOperand();
+        if (sym.length() < 2)
+          sym += "  ";
+        else if (sym.length() < 3)
+          sym += " "; 
+        map<string, Symbol>::iterator it;
+        it = symboltable_.find(sym);
+         if (it == symboltable_.end()) {
+           cout << "UNDEFINED SYMBOL " << sym << endl;
+           string error_message = "***** ERROR -- SYMBOL " + sym + " IS UNDEFINED\n";
+           codelines_.at(i).SetErrorMessages(error_message);
+           pc_in_assembler_++;
+           continue;
+         }
         int loc = symboltable_.at(sym).GetLocation();
+
         string addr_string = DABnamespace::DecToBitString(loc, 12);
         machine_code_ += addr_string;
-}
+    } 
 
       codelines_.at(i).SetMachineCode(machine_code_);
       if ( codelines_.at(i).GetMnemonic() != "END" ) {
-        machinecode_[pc] = machine_code_;
+        machinecode_[pc_in_assembler_] = machine_code_;
       }
-      pc++;
+      pc_in_assembler_++;
       // cout << "CODE " << codelines_.at(i).GetCode() << endl;
    }
  }
@@ -329,11 +397,10 @@ void Assembler::PrintCodeLines() {
     s += "\n***** ERROR -- NO 'END' STATEMENT\n";
     has_an_error_ = true;
   }
-  cout << s << endl;
+  Utils::log_stream << s << endl;
 #ifdef EBUG
   Utils::log_stream << "leave PrintCodeLines" << endl;
 #endif
-  Utils::log_stream << s << endl;
 }
 
 /***************************************************************************
@@ -386,11 +453,15 @@ void Assembler::PrintSymbolTable() {
 #ifdef EBUG
   Utils::log_stream << "enter PrintSymbolTable" << endl;
 #endif
-  string s = "";
+  Utils::log_stream << endl;
+  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
+  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
+    Utils::log_stream << "SYM " << " "
+                      << it->second.ToString() << endl;
+  }
 #ifdef EBUG
   Utils::log_stream << "leave PrintSymbolTable" << endl;
 #endif
-  Utils::log_stream << s << endl;
 }
 
 /******************************************************************************
@@ -406,6 +477,24 @@ void Assembler::SetNewPC(CodeLine codeline) {
 #ifdef EBUG
   Utils::log_stream << "enter SetNewPC" << endl;
 #endif
+  Hex hex = Hex();
+  hex = codeline.GetHexObject();
+  int hex_value = hex.GetValue();
+  string mnemonic = codeline.GetMnemonic();
+  if (mnemonic == "ORG") {
+    if (hex_value >= 0 && hex_value < DABnamespace::kMaxMemory)
+      pc_in_assembler_ = hex_value;
+    else
+      cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
+           << "memory" <<  endl;
+  } else {
+    int updated_pc = hex_value + pc_in_assembler_;
+    if (updated_pc >= 0 && updated_pc < DABnamespace::kMaxMemory)
+      pc_in_assembler_ = updated_pc;
+    else
+      cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
+           << "memory" <<  endl;
+  }
 
 #ifdef EBUG
   Utils::log_stream << "leave SetNewPC" << endl;
@@ -423,7 +512,7 @@ void Assembler::UpdateSymbolTable(int pc, string symboltext) {
 #ifdef EBUG
   Utils::log_stream << "enter UpdateSymbolTable" << endl;
 #endif
-
+  symboltable_.at(symboltext).SetMultiply();
 #ifdef EBUG
   Utils::log_stream << "leave UpdateSymbolTable" << endl;
 #endif
