@@ -4,62 +4,60 @@ Main: logfile 'xlog1.txt
 Reading machine code
 
 PASS ONE
-    0                                           *23 567 9 123 56789 1
-    1                                           *ll mmm a sss hhhhh * comment
-    2    0  000000000000 xxxx xxxx xxxx xxxx        LD    A   ..... * load the first addend 
-    3    1  000000000001 xxxx xxxx xxxx xxxx        WRT       ..... * write the acc to output
-    4    2  000000000010 xxxx xxxx xxxx xxxx        BR    SKP ..... * add in the second addend
-    5    3  000000000011 xxxx xxxx xxxx xxxx        WRT       ..... * write the acc to output
-    6    4  000000000100 xxxx xxxx xxxx xxxx        STP   ... .....
-    7    5  000000000101 xxxx xxxx xxxx xxxx SKP    LD    B   ..... * load the first addend 
-    8    6  000000000110 xxxx xxxx xxxx xxxx        WRT       ..... * write the acc to output
-    9    7  000000000111 xxxx xxxx xxxx xxxx        STP   ... .....
-   10    8  000000001000 xxxx xxxx xxxx xxxx        END   ... .....
-   11                                           *
-   12    8  000000001000 xxxx xxxx xxxx xxxx A      HEX       .....
-   13    9  000000001001 xxxx xxxx xxxx xxxx B      HEX       .....
+    0                                           *23456789012345678901
+    1    0  000000000000 xxxx xxxx xxxx xxxx STR     RD   ...
+    2    1  000000000001 xxxx xxxx xxxx xxxx        STC    A1
+    3    2  000000000010 xxxx xxxx xxxx xxxx 68     AND    B2
+    4    3  000000000011 xxxx xxxx xxxx xxxx        BAN   CHK
+    5    4  000000000100 xxxx xxxx xxxx xxxx        ORG       +0010
+    6   16  000000010000 xxxx xxxx xxxx xxxx STR    LD     A1
+    7   17  000000010001 xxxx xxxx xxxx xxxx        DIV    90
+    8   18  000000010010 xxxx xxxx xxxx xxxx        ORG       -0011
+    9   18  000000010010 xxxx xxxx xxxx xxxx A1     DS        +000A * comment
+   10   28  000000011100 xxxx xxxx xxxx xxxx        DS        +0006 * comment
+   11   34  000000100010 xxxx xxxx xxxx xxxx        HEX       +0A0U
+   12   35  000000100011 xxxx xxxx xxxx xxxx B2     HEX       -001C * comment
 
 
 SYMBOL TABLE
     SYM LOC FLAGS
-SYM A   8
-SYM B   9
-SYM SKP 5
+SYM 68  2
+SYM A1  18
+SYM B2  35
+SYM STR 0
 
 PASS TWO
-    0                                           *23 567 9 123 56789 1
-    1                                           *ll mmm a sss hhhhh * comment
-    2    0  000000000000 1010 0000 0000 1000        LD    A   ..... * load the first addend 
-    3    1  000000000001 1110 0000 0000 0011        WRT       ..... * write the acc to output
-    4    2  000000000010 1100 0000 0000 0101        BR    SKP ..... * add in the second addend
-    5    3  000000000011 1110 0000 0000 0011        WRT       ..... * write the acc to output
-    6    4  000000000100 1110 0000 0000 0010        STP   ... .....
-    7    5  000000000101 1010 0000 0000 1001 SKP    LD    B   ..... * load the first addend 
-    8    6  000000000110 1110 0000 0000 0011        WRT       ..... * write the acc to output
-    9    7  000000000111 1110 0000 0000 0010        STP   ... .....
-   10    8  000000001000 0000 0000 1111 0000        END   ... .....
-   11                                           *
-   12    8  000000001000 0000 0000 0000 0101 A      HEX       .....
-   13    9  000000001001 0000 0000 0000 1001 B      HEX       .....
+    0                                           *23456789012345678901
+    1    0  000000000000 1110 0000 0000 0001 STR     RD   ...
+    2    1  000000000001 0100 0000 0001 0010        STC    A1
+    3    2  000000000010 0110 0000 0010 0011 68     AND    B2
+    4    3  000000000011 xxxx xxxx xxxx xxxx        BAN   CHK
+    5    4  000000000100 1100 1100 1100 1100        ORG       +0010
+    6   16  000000010000 1010 0000 0001 0010 STR    LD     A1
+    7   17  000000010001 xxxx xxxx xxxx xxxx        DIV    90
+    8   18  000000010010 1100 1100 1100 1100        ORG       -0011
+    9   18  000000010010 xxxx xxxx xxxx xxxx A1     DS        +000A * comment
+   10   28  000000011100 xxxx xxxx xxxx xxxx        DS        +0006 * comment
+   11   34  000000100010 0000 0000 0000 0000        HEX       +0A0U
+   12   35  000000100011 1111 1111 1110 0100 B2     HEX       -001C * comment
 
 
 SYMBOL TABLE
     SYM LOC FLAGS
-SYM A   8
-SYM B   9
-SYM SKP 5
+SYM 68  2
+SYM A1  18
+SYM B2  35
+SYM STR 0
 
 
 
 MACHINE CODE
-  0 000000000000 1010 0000 0000 1000
-  1 000000000001 1110 0000 0000 0011
-  2 000000000010 1100 0000 0000 0101
-  3 000000000011 1110 0000 0000 0011
-  4 000000000100 1110 0000 0000 0010
-  5 000000000101 1010 0000 0000 1001
-  6 000000000110 1110 0000 0000 0011
-  7 000000000111 1110 0000 0000 0010
-  9 000000001001 0000 0000 0000 0101
- 10 000000001010 0000 0000 0000 1001
+  0 000000000000 1110 0000 0000 0001
+  1 000000000001 0100 0000 0001 0010
+  2 000000000010 0110 0000 0010 0011
+ 16 000000010000 1100 1100 1100 1100
+ 17 000000010001 1010 0000 0001 0010
+ 19 000000010011 1100 1100 1100 1100
+ 22 000000010110 0000 0000 0000 0000
+ 23 000000010111 1111 1111 1110 0100
 Main: Ending execution

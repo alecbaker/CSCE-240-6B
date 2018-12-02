@@ -252,9 +252,9 @@ string CodeLine::ToString() const {
 
   if (hex_.IsNotNull()) {
   // Added this so log would print hex correctly
-    if (mnemonic_ == "HEX") 
+    if (mnemonic_ == "HEX" || mnemonic_ == "DS " || mnemonic_ == "ORG") 
       s += " " + hex_.ToString();
-} else {
+  } else {
     s += " " + Utils::Format(".....", 5);
   }
 

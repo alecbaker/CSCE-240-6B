@@ -57,7 +57,11 @@ class Assembler {
   map<int, string> machinecode_;
   map<string, Symbol> symboltable_;
   map<string, string> opcodes_;
-  set<string> mnemonics_;
+  set<string> mnemonics_ = {"BAN", "SUB", "STC", "AND",
+                            "ADD", "LD", "LD ", "BR", 
+                            "BR ", "STP", "RD", "RD ", 
+                            "WRT", "HEX", "END", "ORG", 
+                            "DS ", "DS"};
 
   string GetInvalidMessage(string leadingtext, string invalidstring);
   string GetInvalidMessage(string leadingtext, Hex hex);

@@ -55,6 +55,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   Utils::log_stream << "\nPASS ONE" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
+  cout << "pass one complete" << endl;
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
@@ -230,7 +231,10 @@ void Assembler::PassOne(Scanner& in_scanner) {
     // if finds end, sets the found end statement to true, if this statement
     // is false after reading the entirety of the source code, then Error,
     // no end statement
-    if (mnemonic == "END" ) {
+    if (mnemonic == "ORG" || mnemonic == "DS "){
+      this->SetNewPC(code_line);
+      pc_in_assembler_--;
+    } else if (mnemonic == "END") {
       pc_in_assembler_--;
       found_end_statement_ = true; 
     }
@@ -256,14 +260,24 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
-   int pc = 0;
+   pc_in_assembler_ = 0;
    for (int i = 0; i < codelines_.size(); ++i) {
      if (codelines_.at(i).IsAllComment() == false) {
-      // cout << " I " << i << endl;
+      cout << " I " << i << endl;
       string mnemonic = codelines_.at(i).GetMnemonic();
+
+      bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
+      cout << mnemonic << endl;
+      if (!mnemonic_exists) {
+        cout << "INVALID MNEMONIC " << mnemonic << endl;
+        pc_in_assembler_++;
+        continue;
+      }
+
       string machine_code_ = "";
       machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
       string addr = codelines_.at(i).GetAddr();
+
       // Added DS because noticed address flag was always set in log files
       // When dealing with DS. 
       if (addr == "*" || mnemonic == "DS ") 
@@ -271,7 +285,7 @@ void Assembler::PassTwo() {
       else 
         machine_code_ += "0";
     
-      if (mnemonic == "RD ") { 
+      if (mnemonic == "RD") { 
         machine_code_ += "000000000001";
     } else if (mnemonic == "STP") { 
         machine_code_ += "000000000010";
@@ -280,14 +294,15 @@ void Assembler::PassTwo() {
     } else if (mnemonic == "END") {
         machine_code_ += "000011110000";
       // Not sure if this is correct machine code for DS 
-    } else if (mnemonic == "DS ") {
+    } else if (mnemonic == "DS") {
         machine_code_ += "000000000000";
         Hex hex = Hex();
         hex = codelines_.at(i).GetHexObject();
         int hex_value_ = hex.GetValue();
+        cout << hex_value_ << endl;
         // Checks if DS to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
-          pc = pc + hex_value_;
+          pc_in_assembler_ += hex_value_;
         else 
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
                << "memory" <<  endl;
@@ -299,7 +314,7 @@ void Assembler::PassTwo() {
         int hex_value_ = hex.GetValue();
         // checks if ORG to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
-          pc = hex_value_;
+          pc_in_assembler_ = hex_value_;
         else
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
                << "memory" <<  endl;
@@ -315,20 +330,29 @@ void Assembler::PassTwo() {
         machine_code_ += addr_string;
     } else {
         string sym = codelines_.at(i).GetSymOperand();
-        // map<string, Symbol>::iterator it;
-        // it = symboltable_.find(sym);
-        // if (it == symboltable_.end()) {
-          // cout << "UNDEFINED SYMBOL " << sym << endl;
+        cout << sym << " " << sym.length() << endl;
+        if (sym.length() < 2)
+          sym += "  ";
+        else if (sym.length() < 3)
+          sym += " "; 
+        map<string, Symbol>::iterator it;
+        it = symboltable_.find(sym);
+         if (it == symboltable_.end()) {
+           cout << "UNDEFINED SYMBOL " << sym << endl;
+           pc_in_assembler_++;
+           continue;
+         }
         int loc = symboltable_.at(sym).GetLocation();
+
         string addr_string = DABnamespace::DecToBitString(loc, 12);
         machine_code_ += addr_string;
     } 
 
       codelines_.at(i).SetMachineCode(machine_code_);
       if ( codelines_.at(i).GetMnemonic() != "END" ) {
-        machinecode_[pc] = machine_code_;
+        machinecode_[pc_in_assembler_] = machine_code_;
       }
-      pc++;
+      pc_in_assembler_++;
       // cout << "CODE " << codelines_.at(i).GetCode() << endl;
    }
  }
@@ -435,6 +459,24 @@ void Assembler::SetNewPC(CodeLine codeline) {
 #ifdef EBUG
   Utils::log_stream << "enter SetNewPC" << endl;
 #endif
+  Hex hex = Hex();
+  hex = codeline.GetHexObject();
+  int hex_value = hex.GetValue();
+  string mnemonic = codeline.GetMnemonic();
+  if (mnemonic == "ORG") {
+    if (hex_value >= 0 && hex_value < DABnamespace::kMaxMemory)
+      pc_in_assembler_ = hex_value;
+    else
+      cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
+           << "memory" <<  endl;
+  } else {
+    int updated_pc = hex_value + pc_in_assembler_;
+    if (updated_pc >= 0 && updated_pc < DABnamespace::kMaxMemory)
+      pc_in_assembler_ = updated_pc;
+    else
+      cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
+           << "memory" <<  endl;
+  }
 
 #ifdef EBUG
   Utils::log_stream << "leave SetNewPC" << endl;
