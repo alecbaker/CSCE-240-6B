@@ -229,16 +229,19 @@ void Assembler::PassOne(Scanner& in_scanner) {
                           comments, code);
     codelines_.push_back(code_line);
     // cout << code_line.GetHexObject().IsNull() << endl;
+
+    // Check for symbol erros and add to symboltable
     if (label != "   ") {
-      Symbol symbol_ = Symbol(label, pc_in_assembler_);
+      Symbol symbol = Symbol(label, pc_in_assembler_);
       map<string, Symbol>::iterator it; 
       it = symboltable_.find(label);
       // This block checks if the symbol has been defined more than once, if
       // not, then insert the symbol into the symboltable_ map. 
       if (it != symboltable_.end()) {
-        symbol_.SetMultiply();
-    } else {
-      symboltable_.insert({label, symbol_});
+        symbol.SetMultiply();
+    // Insert into symbol table if valid symbol
+    } else if (!symbol.HasAnError()){
+      symboltable_.insert({label, symbol});
     }
   }
     // if finds end, sets the found end statement to true, if this statement

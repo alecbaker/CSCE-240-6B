@@ -20,6 +20,7 @@ Symbol::Symbol() {
 Symbol::Symbol(string text, int programcounter) {
   text_ = text;
   location_ = programcounter;
+  is_invalid_ = this->CheckInvalid();
 }
 
 /******************************************************************************
@@ -37,9 +38,8 @@ Symbol::~Symbol() {
 **/
 string Symbol::GetErrorMessages() const {
   bool previouserror = false;
-  string error_messages = "";
 
-  return error_messages;
+  return error_messages_;
 }
 
 /******************************************************************************
@@ -74,12 +74,42 @@ void Symbol::SetMultiply() {
 **/
 bool Symbol::CheckInvalid() const {
   bool returnvalue = false;  // false means no, not invalid
+  string new_error = "";
+  // check if symbol is one - three characters long
+  if (text_.size() > 3 || text_.size() < 1) {
+    new_error = "Symbol has invalid length \n";
+    std::cout << text_ << " " << new_error;
+    //error_messages_ += new_error;
+    returnvalue = true;
+  }
 
-  // code goes here
-  // First letter must be aplha
-  // No space in the middle of the symbol
-  // Entire symbol can only be aphanumberic 
-  // Either use isalnum() or compare each character to ascii values?
+  // check if symbol starts with alpha character
+  if (!isalpha(text_.at(0))) {
+    new_error = "Symbol does not begin with Alpha Character \n";
+    std::cout << text_ << " " << new_error;
+    //error_messages_ += new_error;
+    returnvalue = true;
+  }
+
+  // check that all characters are alphanumberic
+  for (int i = 0; i < text_.size(); i++) {
+    if (text_.at(i) != ' ' && !isalnum(text_.at(i))) {
+      new_error = "Symbol has non alphanumeric character \n";
+      //error_messages_ += new_error;
+      std::cout << text_ << " " << new_error;
+      returnvalue = true;
+    // check if symbol has blank space in middle
+    }
+  }
+
+  // check for blank space in middle of symbol
+  // if there is a space at the first or second char and not a space at end
+  if ((text_.at(0) == ' ' || text_.at(1) == ' ') && text_.at(2) != ' ') {
+    new_error = "Symbol has a blank space in the middle \n";
+    std::cout << text_ << " " << new_error;
+    //error_messages_ += new_error;
+    returnvalue = true;
+  }
 
   return returnvalue;
 }
