@@ -53,17 +53,8 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
-  for (int i = 0; i < codelines_.size(); i++ ) {
-    Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    // out_stream << codelines_.at(i).ToString() << "\n";
-  }
-  Utils::log_stream << endl;
-  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
-  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " " 
-                      << it->second.GetLocation() << endl;
-  }  
-
+  this->PrintCodeLines();
+  this->PrintSymbolTable();
   //////////////////////////////////////////////////////////////////////////
   // Pass two
   // Generate the machine code.
@@ -71,16 +62,8 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
   Assembler::PassTwo();
   Utils::log_stream << "\nPASS TWO" << endl;
-  for (int i = 0; i < codelines_.size(); i++ ) {
-    Utils::log_stream << codelines_.at(i).ToString() << "\n";
-    // out_stream << codelines_.at(i).ToString() << "\n";
-  }
-  Utils::log_stream << endl;
-  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
-  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
-    Utils::log_stream << "SYM " << it->first << " "
-                      << it->second.GetLocation() << endl;
-  }
+  this->PrintCodeLines();
+  this->PrintSymbolTable();
 
   // Printing the machine code to the log file.
   // At some point we need to take the machine code and dump to .bin and .txt
@@ -240,7 +223,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
       if (it != symboltable_.end()) {
         symbol.SetMultiply();
     // Insert into symbol table if valid symbol
-    } else if (!symbol.HasAnError()){
+    } else {
       symboltable_.insert({label, symbol});
     }
   }
@@ -372,11 +355,10 @@ void Assembler::PrintCodeLines() {
     s += "\n***** ERROR -- NO 'END' STATEMENT\n";
     has_an_error_ = true;
   }
-  cout << s << endl;
+  Utils::log_stream << s << endl;
 #ifdef EBUG
   Utils::log_stream << "leave PrintCodeLines" << endl;
 #endif
-  Utils::log_stream << s << endl;
 }
 
 /***************************************************************************
@@ -429,11 +411,15 @@ void Assembler::PrintSymbolTable() {
 #ifdef EBUG
   Utils::log_stream << "enter PrintSymbolTable" << endl;
 #endif
-  string s = "";
+  Utils::log_stream << endl;
+  Utils::log_stream << "SYMBOL TABLE" << endl << "    SYM LOC FLAGS" << endl;
+  for (auto it = symboltable_.cbegin(); it != symboltable_.cend(); ++it) {
+    Utils::log_stream << "SYM " << it->first << " "
+                      << it->second.GetLocation() << endl;
+  }
 #ifdef EBUG
   Utils::log_stream << "leave PrintSymbolTable" << endl;
 #endif
-  Utils::log_stream << s << endl;
 }
 
 /******************************************************************************
