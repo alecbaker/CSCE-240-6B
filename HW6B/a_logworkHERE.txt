@@ -43,6 +43,11 @@ DECEMBER 1 10am - 11am
   - Added DS and ORG functionality, that needs to be tested more.
   - Code catches if a symbol has been multiply defined.
   - Added Buell's example source codes and respected logs in the HW6B directory.
+DECEMBER 2 12pm-7pm
+  - Helped Alec with his error checking 
+  - Completed the multiply defined error working correctly 
+DECEMBER 3 3pm - 
+  - Me and Ethan made the code prettier 
 ETHAN WEAVER:
 November 29 10:30 - 12:15
   - Made it print the machine code to zmylog.txt
@@ -54,3 +59,9 @@ November 29 10:30 - 12:15
   - cleanup up out_stream dumps
     - only thing going to out_stream now is the machine_code
   - changed the Modified By: 'placeholdername' to show Group 8
+Dec 2:
+  - fixed handeling of multiple error messages
+  - wrote machine code to a .txt and a .bin file
+  - read machine code from .bin file and dumped to log file
+Dec 3:
+  - Made code prettier with James C
