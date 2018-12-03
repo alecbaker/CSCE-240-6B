@@ -78,15 +78,15 @@ bool Symbol::CheckInvalid() const {
   // check if symbol is one - three characters long
   if (text_.size() > 3 || text_.size() < 1) {
     new_error = "Symbol has invalid length";
-    std::cout << text_ << " " << new_error;
-    //error_messages_ += new_error;
+    // std::cout << text_ << " " << new_error;
+    // error_messages_ += new_error;
     returnvalue = true;
   }
 
   // check if symbol starts with alpha character
   if (!isalpha(text_.at(0))) {
     new_error = "Symbol does not begin with Alpha Character";
-    std::cout << text_ << " " << new_error;
+    // std::cout << text_ << " " << new_error;
     //error_messages_ += new_error;
     returnvalue = true;
   }
@@ -96,7 +96,7 @@ bool Symbol::CheckInvalid() const {
     if (text_.at(i) != ' ' && !isalnum(text_.at(i))) {
       new_error = "Symbol has non alphanumeric character";
       //error_messages_ += new_error;
-      std::cout << text_ << " " << new_error;
+      // std::cout << text_ << " " << new_error;
       returnvalue = true;
     // check if symbol has blank space in middle
     }
@@ -106,7 +106,7 @@ bool Symbol::CheckInvalid() const {
   // if there is a space at the first or second char and not a space at end
   if ((text_.at(0) == ' ' || text_.at(1) == ' ') && text_.at(2) != ' ') {
     new_error = "Symbol has a blank space in the middle \n";
-    std::cout << text_ << " " << new_error;
+    // std::cout << text_ << " " << new_error;
     //error_messages_ += new_error;
     returnvalue = true;
   }
