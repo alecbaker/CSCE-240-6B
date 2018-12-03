@@ -86,8 +86,9 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
       int i = iter->first;
       int twos_comp;
       dec.push_back(DABnamespace::BitStringToDec(machinecode_.at(i)));
-      twos_comp = (dec.at(i) > 32768) ? dec.at(i) - 65536 : dec.at(i);
-      dec.at(i) = twos_comp;
+    //  cout << dec.at(i) << endl;
+    //  twos_comp = (dec.at(i) > 32768) ? dec.at(i) - 65536 : dec.at(i);
+    //  dec.at(i) = twos_comp;
       out_stream << machinecode_.at(i) << endl;
     }
     // Utils::log_stream << "Dumping to " << binary_filename << endl;
@@ -362,7 +363,7 @@ void Assembler::PassTwo() {
         else { 
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
                << "memory" <<  endl;
-          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + "IS INVALID\n"; 
+          string error_message = "***** ERROR -- DS ALLOCATION " + hex.GetText() + " IS INVALID\n"; 
           codelines_.at(i).SetErrorMessages(error_message);
         }
       // Not sure if this is correct machine code for ORG 
