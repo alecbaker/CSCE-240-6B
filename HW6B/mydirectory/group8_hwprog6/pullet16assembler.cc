@@ -140,7 +140,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
  *   symbol - the symbol that is invalid
 **/
 string Assembler::GetInvalidMessage(string leadingtext, string symbol) {
-  string returnvalue = "";
+  string returnvalue = "***** ERROR -- " + leadingtext + " " + symbol + " IS INVALID\n";
 
   return returnvalue;
 }
@@ -154,7 +154,7 @@ string Assembler::GetInvalidMessage(string leadingtext, string symbol) {
  *   hex - the hex operand that is invalid
 **/
 string Assembler::GetInvalidMessage(string leadingtext, Hex hex) {
-  string returnvalue = "";
+  string returnvalue = "***** ERROR -- " + leadingtext + " " + hex.GetText() + " IS INVALID\n";
 
   return returnvalue;
 }
@@ -167,7 +167,7 @@ string Assembler::GetInvalidMessage(string leadingtext, Hex hex) {
  *   badtext - the undefined symbol text
 **/
 string Assembler::GetUndefinedMessage(string badtext) {
-  string returnvalue = "";
+  string returnvalue = "***** ERROR -- SYMBOL " + badtext + " IS UNDEFINED\n";
 
   return returnvalue;
 }
@@ -190,7 +190,6 @@ void Assembler::PassOne(Scanner& in_scanner) {
   Utils::log_stream << "enter PassOne" << endl;
 #endif
 
-  // The below code is for 6b
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
   // the scanner.NextLine() function to strip the beggining whitespaces
@@ -251,7 +250,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
     if (label != "   ") {
       Symbol symbol = Symbol(label, pc_in_assembler_);
       if (symbol.HasAnError()) {
-        string error_message = "***** ERROR -- SYMBOL " + label + " IS INVALID\n";
+        string error_message = this->GetInvalidMessage("SYMBOL", label); 
         cout << error_message << endl;
         codelines_.at(line_counter).SetErrorMessages(error_message);
       }
@@ -308,8 +307,7 @@ void Assembler::PassTwo() {
 
       bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
       if (!mnemonic_exists) {
-        string error_message = "***** ERROR -- MNEMONIC " + mnemonic + " IS INVALID\n";
-        cout << "INVALID MNEMONIC " << mnemonic << endl;
+        string error_message = this->GetInvalidMessage("MNEMONIC", mnemonic);
         codelines_.at(i).SetErrorMessages(error_message);
         pc_in_assembler_++;
         // continue;
@@ -328,8 +326,7 @@ void Assembler::PassTwo() {
         map<string, Symbol>::iterator it; 
         it = symboltable_.find(sym);
         if (it == symboltable_.end()) {
-          cout << "UNDEFINED SYMBOL " << sym << endl;
-          string error_message = "***** ERROR -- SYMBOL " + sym + " IS UNDEFINED\n";
+          string error_message = this->GetUndefinedMessage(sym);
           codelines_.at(i).SetErrorMessages(error_message);
           pc_in_assembler_++;
           continue;
@@ -363,7 +360,7 @@ void Assembler::PassTwo() {
         else { 
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: DS outside of " 
                << "memory" <<  endl;
-          string error_message = "***** ERROR -- DS ALLOCATION " + hex.GetText() + " IS INVALID\n"; 
+          string error_message = this->GetInvalidMessage("DS ALLOCATION", hex);
           codelines_.at(i).SetErrorMessages(error_message);
         }
       // Not sure if this is correct machine code for ORG 
@@ -378,7 +375,7 @@ void Assembler::PassTwo() {
         else {
           cout << "THIS IS AN ERROR WE NEED TO DEAL WITH: ORG outside of "
                << "memory" <<  endl;
-          string error_message = "***** ERROR -- PC VALUE " + hex.GetText() + " IS INVALID\n"; 
+          string error_message = this->GetInvalidMessage("PC VALUE", hex);
           codelines_.at(i).SetErrorMessages(error_message);
         }
     } else if (mnemonic == "HEX") {
