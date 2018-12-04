@@ -84,6 +84,10 @@ string CodeLine::GetSymOperand() const {
   return symoperand_;
 }
 
+string CodeLine::GetPC() const {
+  return std::to_string(pc_);
+}
+
 /***************************************************************************
  * Boolean indicator of the presence of a label.
 **/

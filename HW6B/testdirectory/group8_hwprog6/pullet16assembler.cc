@@ -46,17 +46,19 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   // Pass one
   // Produce the symbol table and detect errors in symbols.
   // ////////////////////////////////////////////////////////////////////////
-
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
-  // ///////////////////////////////////////////////////////////i/////////////
+  // ///////_////////////////////////////////////////////////////i/////////////
   // Pass two
   // Generate the machine code.
   // ////////////////////////////////////////////////////////////////////////
-
+  //cout << pc_in_assembler_ << endl;
   Assembler::PassTwo();
+  //cout << pc_in_assembler_ << endl;
+  // somewhere in passtwo pc is being incremented incorrectly. 
+  // it is one to big for xin6source.
   Utils::log_stream << "\nPASS TWO" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
@@ -81,7 +83,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
     string swapped_code;
     for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
       int i = iter->first;
-      first = machinecode_.at(i).substr(0,8);
+      first = machinecode_.at(i).substr(0, 8);
       second = machinecode_.at(i).substr(8);
       swapped_code = second + first;
       // takes the machine code and generates a vector of integers.
@@ -89,7 +91,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
       // dumping the machine code to a dotout.txt file as binary strings
       out_stream << machinecode_.at(i) << endl;
     }
-
+    
     // dumping to a bin file
     std::ofstream output(binary_filename, std::ofstream::binary);
     if (output) {
@@ -178,6 +180,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
 #endif
 
   // The below code is for 6b
+
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
   // the scanner.NextLine() function to strip the beggining whitespaces
@@ -290,6 +293,7 @@ void Assembler::PassTwo() {
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
   pc_in_assembler_ = 0;
+  map<int, string> mach_pre;
   for (int i = 0; i < codelines_.size(); ++i) {
     if (codelines_.at(i).IsAllComment() == false) {
       string mnemonic = codelines_.at(i).GetMnemonic();
@@ -362,7 +366,12 @@ void Assembler::PassTwo() {
           int hex_value_ = hex.GetValue();
           // Checks if DS to a legal address
           if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
+            // cout << "PC, before DS " << pc_in_assembler_ << endl;
             pc_in_assembler_ += hex_value_;
+            // cout << hex_value_ << endl;
+            // cout << codelines_.at(i).GetPC() << endl;
+            // cout << "PC, after DS " << pc_in_assembler_ << "\n" << endl;
+            pc_in_assembler_--;
         } else {
             string error_message = GetInvalidMessage("DS ALLOCATION", hex);
             codelines_.at(i).SetErrorMessages(error_message);
@@ -373,7 +382,10 @@ void Assembler::PassTwo() {
         int hex_value_ = hex.GetValue();
         // checks if ORG to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
-          pc_in_assembler_ = hex_value_;
+          //cout << "PC before ORG " << pc_in_assembler_ << endl;
+          pc_in_assembler_ = hex_value_; 
+          //cout << "PC after ORG " << pc_in_assembler_ << endl;
+          pc_in_assembler_--;
       } else {
           string error_message = GetInvalidMessage("PC VALUE", hex);
           codelines_.at(i).SetErrorMessages(error_message);
@@ -403,11 +415,30 @@ void Assembler::PassTwo() {
     }
 
     // adds the machine code to the machine code map
+    //there is some error when generating machine code.
     codelines_.at(i).SetMachineCode(machine_code_);
     if ( codelines_.at(i).GetMnemonic() != "END" ) {
-     machinecode_.insert({pc_in_assembler_, machine_code_});
+      mach_pre.insert({stoi(codelines_.at(i).GetPC()), machine_code_});
+    } else {
+      // mnemonic is end
+      pc_in_assembler_--;
     }
     pc_in_assembler_++;
+    }
+  }
+
+  auto iter = mach_pre.begin();
+  int j;
+  for (int pc = 0; pc < pc_in_assembler_; ++pc) {
+    if ( iter == mach_pre.end() ) {
+      iter--;
+    }
+    j = iter->first;
+    if ( j != pc ) {
+      machinecode_.insert({pc, kDummyCodeA});
+    } else {
+      machinecode_.insert({pc, mach_pre.at(j)});
+      iter++;
     }
   }
 #ifdef EBUG
@@ -455,9 +486,14 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
   std::ifstream input(binary_filename, std::ifstream::binary);
   if (input) {
     char* inputbuffer = new char[2];
-    int x;
-    int y;
-    int sum;
+//    int x;
+//    int y;
+//    int sum;
+
+    int16_t value_read;
+    string first_bit;
+    string second_bit;
+    string converted_bin;
     vector<string> machcode_frombin;
 
     // the for loop iterates through the .bin file
@@ -467,7 +503,7 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
     // there is a a slight hiccup when dealing with single digit neg numbers
       // basically the first character is read as -1 when it is suppose to be 0
       // the if statement catches and corrects this
-    for ( int i = 0; i < size; i++ ) {
+/**    for ( int i = 0; i < size; i++ ) {
       input.read(inputbuffer, 2);
       x = inputbuffer[0];
       y = inputbuffer[1];
@@ -476,6 +512,17 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
       }
       sum = 256*x + y;
       machcode_frombin.push_back(DABnamespace::DecToBitString(sum, 16));
+    }
+**/
+
+    for ( int i = 0; i < size; i++) {
+      input.read(inputbuffer, 2);
+      value_read = *(reinterpret_cast<int16_t*>(inputbuffer));
+      converted_bin = DABnamespace::DecToBitString(value_read, 16);
+      first_bit = converted_bin.substr(0, 8);
+      second_bit = converted_bin.substr(8);
+      converted_bin = second_bit + first_bit;
+      machcode_frombin.push_back(converted_bin);
     }
     input.close();
     // Dump converted binary
