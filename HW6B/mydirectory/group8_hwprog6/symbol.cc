@@ -5,7 +5,7 @@
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
  * Used with permission and modified by: Group 8
- * Date: 17 August 2018
+ * Date: 12-3-2018
 **/
 
 /******************************************************************************
@@ -87,7 +87,7 @@ bool Symbol::CheckInvalid() const {
   if (!isalpha(text_.at(0))) {
     new_error = "Symbol does not begin with Alpha Character";
     // std::cout << text_ << " " << new_error;
-    //error_messages_ += new_error;
+    // error_messages_ += new_error;
     returnvalue = true;
   }
 
@@ -95,7 +95,7 @@ bool Symbol::CheckInvalid() const {
   for (int i = 0; i < text_.size(); i++) {
     if (text_.at(i) != ' ' && !isalnum(text_.at(i))) {
       new_error = "Symbol has non alphanumeric character";
-      //error_messages_ += new_error;
+      // error_messages_ += new_error;
       // std::cout << text_ << " " << new_error;
       returnvalue = true;
     // check if symbol has blank space in middle
@@ -107,7 +107,7 @@ bool Symbol::CheckInvalid() const {
   if ((text_.at(0) == ' ' || text_.at(1) == ' ') && text_.at(2) != ' ') {
     new_error = "Symbol has a blank space in the middle \n";
     // std::cout << text_ << " " << new_error;
-    //error_messages_ += new_error;
+    // error_messages_ += new_error;
     returnvalue = true;
   }
 

@@ -13,7 +13,6 @@
  * Constructor
 **/
 Assembler::Assembler() {
-
 }
 
 /***************************************************************************
@@ -43,20 +42,20 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 #ifdef EBUG
   Utils::log_stream << "enter Assemble" << endl;
 #endif
-  //////////////////////////////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////////////////////////////
   // Pass one
   // Produce the symbol table and detect errors in symbols.
-  //////////////////////////////////////////////////////////////////////////
-  
+  // ////////////////////////////////////////////////////////////////////////
+
   Assembler::PassOne(in_scanner);
   Utils::log_stream << "\nPASS ONE" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
-  /////////////////////////////////////////////////////////////i/////////////
+  // ///////////////////////////////////////////////////////////i/////////////
   // Pass two
   // Generate the machine code.
-  //////////////////////////////////////////////////////////////////////////
-  
+  // ////////////////////////////////////////////////////////////////////////
+
   Assembler::PassTwo();
   Utils::log_stream << "\nPASS TWO" << endl;
   this->PrintCodeLines();
@@ -71,11 +70,10 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   if ( !has_an_error_ ) {
     // no errors found
     vector<int> dec;    // holds values to dump to a bin file.
-    for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter)
-    {
+    for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
       int i = iter->first;
 
-      // takes the machine code and generates a vector of integers. 
+      // takes the machine code and generates a vector of integers.
       dec.push_back(DABnamespace::BitStringToDec(machinecode_.at(i)));
 
       // dumping the machine code to a dotout.txt file as binary strings
@@ -84,18 +82,17 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 
     // dumping to a bin file
     std::ofstream output(binary_filename, std::ofstream::binary);
-    if (output) { 
+    if (output) {
       char* buffer = new char[8];
       for ( int i = 0; i < dec.size(); i++ ) {
         int *p = &dec.at(i);
         buffer = reinterpret_cast<char*>(p);
         output.write(buffer, 2);
       }
-      output.close(); 
-    } 
- 
+      output.close();
+    }
     Utils::log_stream << "\n\n\n" << "MACHINE CODE" << endl;
-    PrintMachineCode(binary_filename, out_stream);  
+    PrintMachineCode(binary_filename, out_stream);
   } else {
     Utils::log_stream << "\n\n\n";
     Utils::log_stream << "ERRORS EXIST\nNO MACHINE CODE GENERATED" << endl;
@@ -116,7 +113,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
 **/
 string Assembler::GetInvalidMessage(string leadingtext, string symbol) {
   string returnvalue = "";
-  returnvalue = "***** ERROR -- " + leadingtext + " " + 
+  returnvalue = "***** ERROR -- " + leadingtext + " " +
                 symbol + " IS INVALID\n";
   has_an_error_ = true;
   return returnvalue;
@@ -173,7 +170,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
   // The below code is for 6b
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
-  // the scanner.NextLine() function to strip the beggining whitespaces 
+  // the scanner.NextLine() function to strip the beggining whitespaces
   Utils::log_stream << "\nReading machine code" << endl;
     pc_in_assembler_ = 0;
     int line_counter = 0;
@@ -181,7 +178,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
   /**
     * The while-loop will loop until an empty line is read in
   **/
-  while(true) {
+  while (true) {
     // holds a line of text
     string line = in_scanner.NextLine();
 
@@ -193,7 +190,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
     string addr = "";
     string hexoperand = "";
     string code = "nullcode";
-    
+
     CodeLine code_line = CodeLine();
 
     // Break when we read in an empty line
@@ -209,41 +206,41 @@ void Assembler::PassOne(Scanner& in_scanner) {
     }
 
     // Set attributes according to line length
-    if (line.size() >= 2) 
-      label = line.substr(0,3);
-    if (line.size() >= 6) 
-      mnemonic = line.substr(4,3);
-    if (line.size() >= 8) 
-      addr = line.substr(8,1);
-    if (line.size() >= 12) 
-      symoperand = line.substr(10,3);
-    if (line.size() >= 18) 
-      hexoperand = line.substr(14,5);
-    if (line.size() >= 20) 
-      comments = line.substr(20, line.size()); 
+    if (line.size() >= 2)
+      label = line.substr(0, 3);
+    if (line.size() >= 6)
+      mnemonic = line.substr(4, 3);
+    if (line.size() >= 8)
+      addr = line.substr(8, 1);
+    if (line.size() >= 12)
+      symoperand = line.substr(10, 3);
+    if (line.size() >= 18)
+      hexoperand = line.substr(14, 5);
+    if (line.size() >= 20)
+      comments = line.substr(20, line.size());
 
     // Set up new CodeLine and store in codelines vector
     code_line.SetCodeLine(line_counter, pc_in_assembler_, label,
                           mnemonic, addr, symoperand, hexoperand,
                           comments, code);
     codelines_.push_back(code_line);
-    
+
     /**
       * if there is a label
     **/
     if (label != "   ") {
       Symbol symbol = Symbol(label, pc_in_assembler_);
       if (symbol.HasAnError()) {
-      //  string error_message = "***** ERROR -- SYMBOL " + label + 
+      //  string error_message = "***** ERROR -- SYMBOL " + label +
       //                         " IS INVALID\n";
         string error_message = GetInvalidMessage("SYMBOL", label);
         codelines_.at(line_counter).SetErrorMessages(error_message);
       // has_an_error_ = true;
       }
- 
+
       // This block checks if the symbol has been defined more than once, if
-      // not, then insert the symbol into the symboltable_ map. 
-      map<string, Symbol>::iterator it; 
+      // not, then insert the symbol into the symboltable_ map.
+      map<string, Symbol>::iterator it;
       it = symboltable_.find(label);
       if (it != symboltable_.end()) {
         this->UpdateSymbolTable(pc_in_assembler_, label);
@@ -258,12 +255,12 @@ void Assembler::PassOne(Scanner& in_scanner) {
       * if the mnemonic is an end, decprement pc and set found end to true
       * if the menomic is neither, continue like normal
     **/
-    if (mnemonic == "ORG" || mnemonic == "DS "){
+    if (mnemonic == "ORG" || mnemonic == "DS ") {
       this->SetNewPC(code_line);
       pc_in_assembler_--;
     } else if (mnemonic == "END") {
       pc_in_assembler_--;
-      found_end_statement_ = true; 
+      found_end_statement_ = true;
     }
     line_counter++;
     pc_in_assembler_++;
@@ -282,9 +279,9 @@ void Assembler::PassTwo() {
 #ifdef EBUG
   Utils::log_stream << "enter PassTwo" << endl;
 #endif
-   pc_in_assembler_ = 0;
-   for (int i = 0; i < codelines_.size(); ++i) {
-     if (codelines_.at(i).IsAllComment() == false) {
+  pc_in_assembler_ = 0;
+  for (int i = 0; i < codelines_.size(); ++i) {
+    if (codelines_.at(i).IsAllComment() == false) {
       string mnemonic = codelines_.at(i).GetMnemonic();
       string machine_code_ = "";
       string addr = codelines_.at(i).GetAddr();
@@ -306,8 +303,7 @@ void Assembler::PassTwo() {
         // converts the mnemonic to their ASCII representation
         machine_code_ += DABnamespace::GetBitsFromMnemonic(mnemonic);
       }
-     
-      string sym = codelines_.at(i).GetSymOperand(); 
+      string sym = codelines_.at(i).GetSymOperand();
       // If the sym is shorter then three char add spaces until 3 char.
       if (sym.length() < 2)
         sym += "  ";
@@ -316,7 +312,7 @@ void Assembler::PassTwo() {
 
       // checks if the symbol exists and is defined
       if ( sym != "   "  && sym != "nullsymoperand" ) {
-        map<string, Symbol>::iterator it; 
+        map<string, Symbol>::iterator it;
         it = symboltable_.find(sym);
         // if the iterator gets to the end then the symbol was not found
         if (it == symboltable_.end()) {
@@ -330,9 +326,9 @@ void Assembler::PassTwo() {
       // Generating the rest of the machine code
       // Added DS because noticed address flag was always set in log files
       // when dealing with DS.
-      
+
       // generates the direct or indirect portion of the machine code
-      if (addr == "*") { 
+      if (addr == "*") {
         machine_code_ += "1";
       } else if (addr == " ") {
           machine_code_ += "0";
@@ -340,11 +336,11 @@ void Assembler::PassTwo() {
         string error_message = GetInvalidMessage("ADDRESS", addr);
         codelines_.at(i).SetErrorMessages(error_message);
       }
-      
+
       // generates the address portion of the machine code
-      if (mnemonic == "RD") { 
+      if (mnemonic == "RD") {
         machine_code_ = "1110000000000001";
-      } else if (mnemonic == "STP") { 
+      } else if (mnemonic == "STP") {
         machine_code_ = "1110000000000010";
       } else if (mnemonic == "WRT") {
         machine_code_ = "1110000000000011";
@@ -355,20 +351,20 @@ void Assembler::PassTwo() {
           hex = codelines_.at(i).GetHexObject();
           int hex_value_ = hex.GetValue();
           // Checks if DS to a legal address
-          if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+          if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
             pc_in_assembler_ += hex_value_;
-          else { 
+        } else {
             string error_message = GetInvalidMessage("DS ALLOCATION", hex);
             codelines_.at(i).SetErrorMessages(error_message);
-        }
+          }
     } else if (mnemonic == "ORG") {
         machine_code_ = kDummyCodeA;
         hex = codelines_.at(i).GetHexObject();
         int hex_value_ = hex.GetValue();
         // checks if ORG to a legal address
-        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory))
+        if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
           pc_in_assembler_ = hex_value_;
-        else {
+      } else {
           string error_message = GetInvalidMessage("PC VALUE", hex);
           codelines_.at(i).SetErrorMessages(error_message);
         }
@@ -376,7 +372,7 @@ void Assembler::PassTwo() {
         machine_code_ = "";
         hex = codelines_.at(i).GetHexObject();
         // checks the validity of the hex
-        if (hex.HasAnError()){
+        if (hex.HasAnError()) {
           string error_message = hex.GetErrorMessages();
           codelines_.at(i).SetErrorMessages(error_message);
         }
@@ -389,21 +385,21 @@ void Assembler::PassTwo() {
         if (sym.length() < 2)
           sym += "  ";
         else if (sym.length() < 3)
-          sym += " "; 
-   
+          sym += " ";
+
         int loc = symboltable_.at(sym).GetLocation();
         string addr_string = DABnamespace::DecToBitString(loc, 12);
         machine_code_ += addr_string;
-    } 
-    
+    }
+
     // adds the machine code to the machine code map
     codelines_.at(i).SetMachineCode(machine_code_);
     if ( codelines_.at(i).GetMnemonic() != "END" ) {
-     machinecode_.insert( {pc_in_assembler_, machine_code_} );
+     machinecode_.insert({pc_in_assembler_, machine_code_});
     }
     pc_in_assembler_++;
-   }
- }
+    }
+  }
 #ifdef EBUG
   Utils::log_stream << "leave PassTwo" << endl;
 #endif
@@ -453,7 +449,7 @@ void Assembler::PrintMachineCode(string binary_filename,
   input.seekg(0, input.beg);
   char* inputbuffer = new char[2];
 
-  vector<string> machcode_frombin;  
+  vector<string> machcode_frombin;
 
   // Read in binary
   for (int i = 0; i < length/2; i++) {
@@ -522,7 +518,7 @@ void Assembler::SetNewPC(CodeLine codeline) {
     // checks to make sure the pc is valid
     if (updated_pc >= 0 && updated_pc < DABnamespace::kMaxMemory)
       pc_in_assembler_ = updated_pc;
- }
+  }
 
 #ifdef EBUG
   Utils::log_stream << "leave SetNewPC" << endl;
@@ -542,7 +538,7 @@ void Assembler::UpdateSymbolTable(int pc, string symboltext) {
 #endif
   symboltable_.at(symboltext).SetMultiply();
   for ( int i = 0; i < codelines_.size(); ++i ) {
-    if ( codelines_.at(i).GetLabel() == symboltext) {
+    if (codelines_.at(i).GetLabel() == symboltext) {
       string error_message = "***** ERROR -- SYMBOL " + symboltext +
                              " IS MULTIPLY DEFINED\n";
       has_an_error_ = true;
