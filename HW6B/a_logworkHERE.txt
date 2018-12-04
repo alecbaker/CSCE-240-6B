@@ -65,3 +65,5 @@ Dec 2:
   - read machine code from .bin file and dumped to log file
 Dec 3:
   - Made code prettier with James C
+  - fixed handeling of bit order when dumping into the binary file
+  - fixed handeling of bit order when reading from the binary file

@@ -69,7 +69,7 @@ class Assembler {
   void PassOne(Scanner& in_scanner);
   void PassTwo();
   void PrintCodeLines();
-  void PrintMachineCode(string binary_filename, ofstream& out_stream);
+  void PrintMachineCode(string binary_filename, int size);
   void PrintSymbolTable();
   void SetNewPC(CodeLine codeline);
   void UpdateSymbolTable(int programcounter, string label);

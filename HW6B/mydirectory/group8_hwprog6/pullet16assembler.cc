@@ -70,12 +70,22 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   if ( !has_an_error_ ) {
     // no errors found
     vector<int> dec;    // holds values to dump to a bin file.
+
+    // due to how Buell has the binary files written
+    // we needed to swap the bit order
+    // essential we read the first 8 bits into first and the rest into second
+    // these are then joined again but flipped into swapped_code
+    // from this value the binary file is generated
+    string first;
+    string second;
+    string swapped_code;
     for (auto iter = machinecode_.begin(); iter != machinecode_.end(); ++iter) {
       int i = iter->first;
-
+      first = machinecode_.at(i).substr(0, 8);
+      second = machinecode_.at(i).substr(8);
+      swapped_code = second + first;
       // takes the machine code and generates a vector of integers.
-      dec.push_back(DABnamespace::BitStringToDec(machinecode_.at(i)));
-
+      dec.push_back(DABnamespace::BitStringToDec(swapped_code));
       // dumping the machine code to a dotout.txt file as binary strings
       out_stream << machinecode_.at(i) << endl;
     }
@@ -83,7 +93,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
     // dumping to a bin file
     std::ofstream output(binary_filename, std::ofstream::binary);
     if (output) {
-      char* buffer = new char[8];
+      char* buffer = new char[2];
       for ( int i = 0; i < dec.size(); i++ ) {
         int *p = &dec.at(i);
         buffer = reinterpret_cast<char*>(p);
@@ -92,7 +102,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
       output.close();
     }
     Utils::log_stream << "\n\n\n" << "MACHINE CODE" << endl;
-    PrintMachineCode(binary_filename, out_stream);
+    PrintMachineCode(binary_filename, dec.size());
   } else {
     Utils::log_stream << "\n\n\n";
     Utils::log_stream << "ERRORS EXIST\nNO MACHINE CODE GENERATED" << endl;
@@ -435,8 +445,7 @@ void Assembler::PrintCodeLines() {
    Binary read code is based off 
    Duncan Buell's posted solution to HW5
 **/
-void Assembler::PrintMachineCode(string binary_filename,
-                                 ofstream& out_stream) {
+void Assembler::PrintMachineCode(string binary_filename, int size) {
 #ifdef EBUG
   Utils::log_stream << "enter PrintMachineCode" << " "
                     << binary_filename << endl;
@@ -444,29 +453,40 @@ void Assembler::PrintMachineCode(string binary_filename,
   string s = "";
 
   std::ifstream input(binary_filename, std::ifstream::binary);
-  input.seekg(0, input.end);
-  int length = input.tellg();
-  input.seekg(0, input.beg);
-  char* inputbuffer = new char[2];
+  if (input) {
+    char* inputbuffer = new char[2];
+    int x;
+    int y;
+    int sum;
+    vector<string> machcode_frombin;
 
-  vector<string> machcode_frombin;
-
-  // Read in binary
-  for (int i = 0; i < length/2; i++) {
-    input.read(inputbuffer, 2);
-    // Convert binary to ASCII and store in machinecode_ with line number
-    int16_t valueread = *(reinterpret_cast<int16_t*>(inputbuffer));
-    string converted_binary = DABnamespace::DecToBitString(valueread, 16);
-    machcode_frombin.push_back(converted_binary);
+    // the for loop iterates through the .bin file
+    // two characters a read at a time
+    // these are stored into integers x and y
+    // these are then converted into the correct base and added
+    // there is a a slight hiccup when dealing with single digit neg numbers
+      // basically the first character is read as -1 when it is suppose to be 0
+      // the if statement catches and corrects this
+    for ( int i = 0; i < size; i++ ) {
+      input.read(inputbuffer, 2);
+      x = inputbuffer[0];
+      y = inputbuffer[1];
+      if ( x == -1 ) {
+        x = 0;
+      }
+      sum = 256*x + y;
+      machcode_frombin.push_back(DABnamespace::DecToBitString(sum, 16));
+    }
+    input.close();
+    // Dump converted binary
+    for ( int i = 0; i < machcode_frombin.size(); i++ ) {
+      Utils::log_stream << machcode_frombin.at(i) << endl;
+    }
+    Utils::log_stream << endl;
+  } else {
+    Utils::log_stream << "ERROR: " << binary_filename
+      << " COULD NOT BE READ" << endl;
   }
-  input.close();
-
-  // Dump converted binary
-  for ( int i=0; i < machcode_frombin.size(); i++ ) {
-    Utils::log_stream << machcode_frombin.at(i) << endl;
-  }
-  Utils::log_stream << endl;
-
 #ifdef EBUG
   Utils::log_stream << "leave PrintMachineCode" << endl;
 #endif

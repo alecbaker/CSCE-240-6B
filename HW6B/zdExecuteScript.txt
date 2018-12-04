@@ -16,9 +16,9 @@ do
   cd $item
 #  ./Aprog ../../ytestban.txt zmydotout zmylog.txt
 #  ./Aprog ../../ytestbr.txt zmydotout zmylog.txt
-#   ./Aprog ../../ysquaressource.txt zmydotout zmylog.txt
- ./Aprog ../../Examples/xin3source.txt zmydotout zmylog.txt
-# ./Aprog ../../Examples/xin1source.txt zmydotout zmylog.txt
+  ./Aprog ../../ysquaressource.txt zmydotout zmylog.txt
+#  ./Aprog ../../Examples/xin3source.txt zmydotout zmylog.txt
+#  ./Aprog ../../Examples/xin1source.txt zmydotout zmylog.txt
   cd ..
 echo "EXECUTION COMPLETE"
 done

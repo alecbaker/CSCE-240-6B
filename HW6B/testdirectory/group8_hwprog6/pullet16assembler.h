@@ -58,9 +58,9 @@ class Assembler {
   map<string, Symbol> symboltable_;
   map<string, string> opcodes_;
   set<string> mnemonics_ = {"BAN", "SUB", "STC", "AND",
-                            "ADD", "LD", "LD ", "BR", 
-                            "BR ", "STP", "RD", "RD ", 
-                            "WRT", "HEX", "END", "ORG", 
+                            "ADD", "LD", "LD ", "BR",
+                            "BR ", "STP", "RD", "RD ",
+                            "WRT", "HEX", "END", "ORG",
                             "DS ", "DS"};
 
   string GetInvalidMessage(string leadingtext, string invalidstring);
@@ -69,7 +69,7 @@ class Assembler {
   void PassOne(Scanner& in_scanner);
   void PassTwo();
   void PrintCodeLines();
-  void PrintMachineCode(string binary_filename, ofstream& out_stream);
+  void PrintMachineCode(string binary_filename, int size);
   void PrintSymbolTable();
   void SetNewPC(CodeLine codeline);
   void UpdateSymbolTable(int programcounter, string label);
