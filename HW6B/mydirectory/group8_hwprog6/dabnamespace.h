@@ -2,7 +2,8 @@
  * Header file for the namespace for global things.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Group 8
+ * Used with permission and modified by: James Cochran, Ethan Weaver,
+ * Alec Baker, Chris Walls, James Thompson.
  * Date: 21 September 2018
 **/
 

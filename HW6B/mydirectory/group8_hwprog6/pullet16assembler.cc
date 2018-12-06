@@ -85,7 +85,7 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
       // dumping the machine code to a dotout.txt file as binary strings
       out_stream << machinecode_.at(i) << endl;
     }
-    
+
     // dumping to a bin file
     std::ofstream output(binary_filename, std::ofstream::binary);
     if (output) {
@@ -179,7 +179,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
   Utils::log_stream << "\nReading machine code" << endl;
     pc_in_assembler_ = 0;
     int line_counter = 0;
-    
+
     // The while-loop will loop until an empty line is read in
   while (true) {
     // holds a line of text read in from the source code.
@@ -195,10 +195,10 @@ void Assembler::PassOne(Scanner& in_scanner) {
     string code = "nullcode";
 
     CodeLine code_line = CodeLine();
-    
-    // Checks if the source code is 4096 lines or longer and breaks if it is. 
-    if (pc_in_assembler_ = DABnamespace::kMaxMemory) {
-      Utils::log_stream << "***** ERROR -- SOURCE CODE EXCEEDS MAXIMUM SIZE" 
+
+    // Checks if the source code is 4096 lines or longer and breaks if it is.
+    if (pc_in_assembler_ == DABnamespace::kMaxMemory) {
+      Utils::log_stream << "***** ERROR -- SOURCE CODE EXCEEDS MAXIMUM SIZE"
                         << endl;
       break;
     }
@@ -370,7 +370,7 @@ void Assembler::PassTwo() {
         int hex_value_ = hex.GetValue();
         // Checks if ORG to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
-          pc_in_assembler_ = hex_value_; 
+          pc_in_assembler_ = hex_value_;
           pc_in_assembler_--;
       } else {
           string error_message = GetInvalidMessage("PC VALUE", hex);
@@ -397,7 +397,7 @@ void Assembler::PassTwo() {
 
         int loc = symboltable_.at(sym).GetLocation();
         string addr_string = DABnamespace::DecToBitString(loc, 12);
-        // Double checks if pc is still within memory. 
+        // Double checks if pc is still within memory.
         if (loc >= 0 && loc < DABnamespace::kMaxMemory) {
           machine_code_ += addr_string;
       } else {
@@ -509,7 +509,7 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
     }
 **/
 
-    for ( int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
       input.read(inputbuffer, 2);
       value_read = *(reinterpret_cast<int16_t*>(inputbuffer));
       converted_bin = DABnamespace::DecToBitString(value_read, 16);

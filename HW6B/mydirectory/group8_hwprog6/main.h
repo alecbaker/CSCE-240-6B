@@ -2,8 +2,9 @@
  * Rather generic header file that includes the 'Utilities' code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Group 8
- * Date: 17 August 2018
+ * Used with permission and modified by: James Cochran, Ethan Weaver,
+ * Alec Baker, Chris Walls, James Thompson.
+ * Date: 5 December 2018
 **/
 #ifndef MAIN_H
 #define MAIN_H
