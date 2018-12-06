@@ -4,8 +4,9 @@
  * Class 'CodeLine' as a container for one line of code.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Group 8
- * Date: December 3 2018
+ * Used with permission and modified by: James Cochran, Ethan Weaver,
+ * Alec Baker, Chris Walls, James Thompson.
+ * Date: December 5 2018
 **/
 
 /***************************************************************************

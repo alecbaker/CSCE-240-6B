@@ -5,8 +5,9 @@
  * functions.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Group 8
- * Date: 21 September 2018
+ * Used with permission and modified by: James Cochran, Ethan Weaver,
+ * Alec Baker, Chris Walls, James Thompson.
+ * Date: 5 December 2018
  *
  * Documentation for the functions is in the header for those
  * functions.

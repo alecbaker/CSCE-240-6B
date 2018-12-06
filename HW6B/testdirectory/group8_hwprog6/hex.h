@@ -2,8 +2,9 @@
  * Header file for the 'Hex' class to contain one hex operand.
  *
  * Author/copyright:  Duncan A. Buell.  All rights reserved.
- * Used with permission and modified by: Group 8
- * Date: 22 September 2018
+ * Used with permission and modified by: James Cochran, Ethan Weaver,
+ * Alec Baker, Chris Walls, James Thompson.
+ * Date: 5 December 2018
 **/
 
 #ifndef HEX_H

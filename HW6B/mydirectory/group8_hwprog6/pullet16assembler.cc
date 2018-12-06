@@ -480,34 +480,12 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
   std::ifstream input(binary_filename, std::ifstream::binary);
   if (input) {
     char* inputbuffer = new char[2];
-//    int x;
-//    int y;
-//    int sum;
 
     int16_t value_read;
     string first_bit;
     string second_bit;
     string converted_bin;
     vector<string> machcode_frombin;
-
-    // the for loop iterates through the .bin file
-    // two characters a read at a time
-    // these are stored into integers x and y
-    // these are then converted into the correct base and added
-    // there is a a slight hiccup when dealing with single digit neg numbers
-      // basically the first character is read as -1 when it is suppose to be 0
-      // the if statement catches and corrects this
-/**    for ( int i = 0; i < size; i++ ) {
-      input.read(inputbuffer, 2);
-      x = inputbuffer[0];
-      y = inputbuffer[1];
-      if ( x == -1 ) {
-        x = 0;
-      }
-      sum = 256*x + y;
-      machcode_frombin.push_back(DABnamespace::DecToBitString(sum, 16));
-    }
-**/
 
     for (int i = 0; i < size; i++) {
       input.read(inputbuffer, 2);
@@ -520,8 +498,14 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
     }
     input.close();
     // Dump converted binary
+    string s = "";
     for ( int i = 0; i < machcode_frombin.size(); i++ ) {
-      Utils::log_stream << machcode_frombin.at(i) << endl;
+      s = machcode_frombin.at(i).substr(0, 4) + " ";
+      s += machcode_frombin.at(i).substr(4, 4) + " ";
+      s += machcode_frombin.at(i).substr(8, 4) + " ";
+      s += machcode_frombin.at(i).substr(12 ,4);
+      Utils::log_stream << i << " " << DABnamespace::DecToBitString(i, 12) <<
+        " " << s << endl;
     }
     Utils::log_stream << endl;
   } else {
