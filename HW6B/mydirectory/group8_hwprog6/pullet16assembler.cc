@@ -59,11 +59,11 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   this->PrintCodeLines();
   this->PrintSymbolTable();
   /**
-    * Checks to see if the source code has any error.
-    * If it does have error does not generate dotout files.
-    * If no errors then it generates the dotout files.
+    * Checks to see if the source code has any errors.
+    * If it does have an error does not generate machine code.
+    * If no errors then it generates machine code
   **/
-  if ( !has_an_error_ ) {
+  if (!has_an_error_) {
     // no errors found
     vector<int> dec;    // holds values to dump to a bin file.
 
@@ -256,7 +256,7 @@ void Assembler::PassOne(Scanner& in_scanner) {
 
     /**
       * If the mnemonic is an org or ds, call SetNewPC
-      * If the mnemonic is an end, decprement pc and set found end to true
+      * If the mnemonic is an end, decrement pc and set found end to true
       * If the menomic is neither, continue like normal
     **/
     if (mnemonic == "ORG" || mnemonic == "DS ") {
@@ -296,7 +296,7 @@ void Assembler::PassTwo() {
         * Checks if the inputted mnemonic is one handled in the assembler
         * if it is valid mnemonic_exits is true
         * the if statement catches mnemonic_exists being false
-          * if it is false, prints an error message
+        * if it is false, prints an error message
       **/
       bool mnemonic_exists = mnemonics_.find(mnemonic) != mnemonics_.end();
       if (!mnemonic_exists) {
@@ -503,7 +503,7 @@ void Assembler::PrintMachineCode(string binary_filename, int size) {
       s = machcode_frombin.at(i).substr(0, 4) + " ";
       s += machcode_frombin.at(i).substr(4, 4) + " ";
       s += machcode_frombin.at(i).substr(8, 4) + " ";
-      s += machcode_frombin.at(i).substr(12 ,4);
+      s += machcode_frombin.at(i).substr(12, 4);
       Utils::log_stream << i << " " << DABnamespace::DecToBitString(i, 12) <<
         " " << s << endl;
     }

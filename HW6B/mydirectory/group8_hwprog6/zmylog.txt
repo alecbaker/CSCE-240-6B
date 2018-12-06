@@ -4,86 +4,89 @@ Main: logfile 'zmylog.txt
 Reading machine code
 
 PASS ONE
-    0    0  000000000000 xxxx xxxx xxxx xxxx RD      RD   ...
-    1    1  000000000001 xxxx xxxx xxxx xxxx        WRT   ...
-    2    2  000000000010 xxxx xxxx xxxx xxxx        STC   MEM
-    3    3  000000000011 xxxx xxxx xxxx xxxx        LD    CON
-    4    4  000000000100 xxxx xxxx xxxx xxxx LUP    ADD   MEM
-    5    5  000000000101 xxxx xxxx xxxx xxxx        WRT   ...
-    6    6  000000000110 xxxx xxxx xxxx xxxx        BAN   LUP
-    7    7  000000000111 xxxx xxxx xxxx xxxx        LD    ZER
-    8    8  000000001000 xxxx xxxx xxxx xxxx        WRT   ...
-    9    9  000000001001 xxxx xxxx xxxx xxxx        LD     A1
-   10   10  000000001010 xxxx xxxx xxxx xxxx        AND    A2
-   11   11  000000001011 xxxx xxxx xxxx xxxx        STP   ...
-   12   12  000000001100 xxxx xxxx xxxx xxxx MEM    DS        +0001
-   13   13  000000001101 xxxx xxxx xxxx xxxx CON    HEX       -0021
-   14   14  000000001110 xxxx xxxx xxxx xxxx ZER    HEX       +0000
-   15   15  000000001111 xxxx xxxx xxxx xxxx A1     HEX       +3C3C
-   16   16  000000010000 xxxx xxxx xxxx xxxx A2     HEX       +5656
-   17   17  000000010001 xxxx xxxx xxxx xxxx        END   ...
+    0                                           *23 567 9 123 56789 1
+    1                                           *ll mmm a sss hhhhh * comment
+    2    0  000000000000 xxxx xxxx xxxx xxxx        LD    AAA ..... * load ACC with value at AAA
+    3    1  000000000001 xxxx xxxx xxxx xxxx        WRT       ..... * write the base value
+    4                                           *
+    5    2  000000000010 xxxx xxxx xxxx xxxx TOP    LD    AAA ..... * load the current value
+    6    3  000000000011 xxxx xxxx xxxx xxxx        ADD   ICR ..... * add increment to ACC
+    7    4  000000000100 xxxx xxxx xxxx xxxx        WRT       ..... * write the new value
+    8    5  000000000101 xxxx xxxx xxxx xxxx        STC   AAA ..... * store the new value back
+    9    6  000000000110 xxxx xxxx xxxx xxxx        LD    CTR ..... * load ACC with the counter
+   10    7  000000000111 xxxx xxxx xxxx xxxx        ADD   ONE ..... * increment the counter
+   11    8  000000001000 xxxx xxxx xxxx xxxx        STC   CTR ..... * store the new counter value
+   12    9  000000001001 xxxx xxxx xxxx xxxx        LD    CTR ..... * load ACC with the counter
+   13   10  000000001010 xxxx xxxx xxxx xxxx        BAN   TOP ..... * loop until done
+   14                                           *
+   15   11  000000001011 xxxx xxxx xxxx xxxx        STP       ..... * done if we fall through the loop
+   16                                           *
+   17   12  000000001100 xxxx xxxx xxxx xxxx AAA    HEX       +0001 * base value
+   18   13  000000001101 xxxx xxxx xxxx xxxx CTR    HEX       -0005 * counter for the loop
+   19   14  000000001110 xxxx xxxx xxxx xxxx ICR    HEX       +0002 * increment
+   20   15  000000001111 xxxx xxxx xxxx xxxx ONE    HEX       +0001 * we need a constant 1
+   21   16  000000010000 xxxx xxxx xxxx xxxx        END   ...
 
 
 SYMBOL TABLE
     SYM LOC FLAGS
-SYM  A1   15
-SYM  A2   16
-SYM  CON  13
-SYM  LUP   4
-SYM  MEM  12
-SYM  RD    0
-SYM  ZER  14
+SYM  AAA  12
+SYM  CTR  13
+SYM  ICR  14
+SYM  ONE  15
+SYM  TOP   2
 
 PASS TWO
-    0    0  000000000000 1110 0000 0000 0001 RD      RD   ...
-    1    1  000000000001 1110 0000 0000 0011        WRT   ...
-    2    2  000000000010 0100 0000 0000 1100        STC   MEM
-    3    3  000000000011 1010 0000 0000 1101        LD    CON
-    4    4  000000000100 1000 0000 0000 1100 LUP    ADD   MEM
-    5    5  000000000101 1110 0000 0000 0011        WRT   ...
-    6    6  000000000110 0000 0000 0000 0100        BAN   LUP
-    7    7  000000000111 1010 0000 0000 1110        LD    ZER
-    8    8  000000001000 1110 0000 0000 0011        WRT   ...
-    9    9  000000001001 1010 0000 0000 1111        LD     A1
-   10   10  000000001010 0110 0000 0001 0000        AND    A2
-   11   11  000000001011 1110 0000 0000 0010        STP   ...
-   12   12  000000001100 1111 0000 0000 0000 MEM    DS        +0001
-   13   13  000000001101 1111 1111 1101 1111 CON    HEX       -0021
-   14   14  000000001110 0000 0000 0000 0000 ZER    HEX       +0000
-   15   15  000000001111 0011 1100 0011 1100 A1     HEX       +3C3C
-   16   16  000000010000 0101 0110 0101 0110 A2     HEX       +5656
-   17   17  000000010001 0000 0000 1111 0000        END   ...
+    0                                           *23 567 9 123 56789 1
+    1                                           *ll mmm a sss hhhhh * comment
+    2    0  000000000000 1010 0000 0000 1100        LD    AAA ..... * load ACC with value at AAA
+    3    1  000000000001 1110 0000 0000 0011        WRT       ..... * write the base value
+    4                                           *
+    5    2  000000000010 1010 0000 0000 1100 TOP    LD    AAA ..... * load the current value
+    6    3  000000000011 1000 0000 0000 1110        ADD   ICR ..... * add increment to ACC
+    7    4  000000000100 1110 0000 0000 0011        WRT       ..... * write the new value
+    8    5  000000000101 0100 0000 0000 1100        STC   AAA ..... * store the new value back
+    9    6  000000000110 1010 0000 0000 1101        LD    CTR ..... * load ACC with the counter
+   10    7  000000000111 1000 0000 0000 1111        ADD   ONE ..... * increment the counter
+   11    8  000000001000 0100 0000 0000 1101        STC   CTR ..... * store the new counter value
+   12    9  000000001001 1010 0000 0000 1101        LD    CTR ..... * load ACC with the counter
+   13   10  000000001010 0000 0000 0000 0010        BAN   TOP ..... * loop until done
+   14                                           *
+   15   11  000000001011 1110 0000 0000 0010        STP       ..... * done if we fall through the loop
+   16                                           *
+   17   12  000000001100 0000 0000 0000 0001 AAA    HEX       +0001 * base value
+   18   13  000000001101 1111 1111 1111 1011 CTR    HEX       -0005 * counter for the loop
+   19   14  000000001110 0000 0000 0000 0010 ICR    HEX       +0002 * increment
+   20   15  000000001111 0000 0000 0000 0001 ONE    HEX       +0001 * we need a constant 1
+   21   16  000000010000 0000 0000 1111 0000        END   ...
 
 
 SYMBOL TABLE
     SYM LOC FLAGS
-SYM  A1   15
-SYM  A2   16
-SYM  CON  13
-SYM  LUP   4
-SYM  MEM  12
-SYM  RD    0
-SYM  ZER  14
+SYM  AAA  12
+SYM  CTR  13
+SYM  ICR  14
+SYM  ONE  15
+SYM  TOP   2
 
 
 
 MACHINE CODE
-1110000000000001
-1110000000000011
-0100000000001100
-1010000000001101
-1000000000001100
-1110000000000011
-0000000000000100
-1010000000001110
-1110000000000011
-1010000000001111
-0110000000010000
-1110000000000010
-1111000000000000
-1111111111011111
-0000000000000000
-0011110000111100
-0101011001010110
+0 000000000000 1010 0000 0000 1100
+1 000000000001 1110 0000 0000 0011
+2 000000000010 1010 0000 0000 1100
+3 000000000011 1000 0000 0000 1110
+4 000000000100 1110 0000 0000 0011
+5 000000000101 0100 0000 0000 1100
+6 000000000110 1010 0000 0000 1101
+7 000000000111 1000 0000 0000 1111
+8 000000001000 0100 0000 0000 1101
+9 000000001001 1010 0000 0000 1101
+10 000000001010 0000 0000 0000 0010
+11 000000001011 1110 0000 0000 0010
+12 000000001100 0000 0000 0000 0001
+13 000000001101 1111 1111 1111 1011
+14 000000001110 0000 0000 0000 0010
+15 000000001111 0000 0000 0000 0001
 
 Main: Ending execution
