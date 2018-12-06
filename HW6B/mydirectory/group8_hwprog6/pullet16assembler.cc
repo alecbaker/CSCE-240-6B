@@ -54,20 +54,14 @@ void Assembler::Assemble(Scanner& in_scanner, string binary_filename,
   // Pass two
   // Generate the machine code.
   // ////////////////////////////////////////////////////////////////////////
-  //cout << pc_in_assembler_ << endl;
   Assembler::PassTwo();
-  //cout << pc_in_assembler_ << endl;
-  // somewhere in passtwo pc is being incremented incorrectly. 
-  // it is one to big for xin6source.
   Utils::log_stream << "\nPASS TWO" << endl;
   this->PrintCodeLines();
   this->PrintSymbolTable();
-
-
   /**
     * Checks to see if the source code has any error.
     * If it does have error does not generate dotout files.
-    * if no errors then it generates the dotout files.
+    * If no errors then it generates the dotout files.
   **/
   if ( !has_an_error_ ) {
     // no errors found
@@ -179,20 +173,16 @@ void Assembler::PassOne(Scanner& in_scanner) {
   Utils::log_stream << "enter PassOne" << endl;
 #endif
 
-  // The below code is for 6b
-
   // Looping until we read in an empty line
   // because the scanner.HasNext() function was causing
   // the scanner.NextLine() function to strip the beggining whitespaces
   Utils::log_stream << "\nReading machine code" << endl;
     pc_in_assembler_ = 0;
     int line_counter = 0;
-
-  /**
-    * The while-loop will loop until an empty line is read in
-  **/
+    
+    // The while-loop will loop until an empty line is read in
   while (true) {
-    // holds a line of text
+    // holds a line of text read in from the source code.
     string line = in_scanner.NextLine();
 
     // setting the default attributes
@@ -205,7 +195,13 @@ void Assembler::PassOne(Scanner& in_scanner) {
     string code = "nullcode";
 
     CodeLine code_line = CodeLine();
-
+    
+    // Checks if the source code is 4096 lines or longer and breaks if it is. 
+    if (pc_in_assembler_ = DABnamespace::kMaxMemory) {
+      Utils::log_stream << "***** ERROR -- SOURCE CODE EXCEEDS MAXIMUM SIZE" 
+                        << endl;
+      break;
+    }
     // Break when we read in an empty line
     if (line == "")
       break;
@@ -238,17 +234,12 @@ void Assembler::PassOne(Scanner& in_scanner) {
                           comments, code);
     codelines_.push_back(code_line);
 
-    /**
-      * if there is a label
-    **/
+    // If there is a label within line of code
     if (label != "   ") {
       Symbol symbol = Symbol(label, pc_in_assembler_);
       if (symbol.HasAnError()) {
-      //  string error_message = "***** ERROR -- SYMBOL " + label +
-      //                         " IS INVALID\n";
         string error_message = GetInvalidMessage("SYMBOL", label);
         codelines_.at(line_counter).SetErrorMessages(error_message);
-      // has_an_error_ = true;
       }
 
       // This block checks if the symbol has been defined more than once, if
@@ -264,9 +255,9 @@ void Assembler::PassOne(Scanner& in_scanner) {
   }
 
     /**
-      * if the mnemonic is an org or ds, call SetNewPC
-      * if the mnemonic is an end, decprement pc and set found end to true
-      * if the menomic is neither, continue like normal
+      * If the mnemonic is an org or ds, call SetNewPC
+      * If the mnemonic is an end, decprement pc and set found end to true
+      * If the menomic is neither, continue like normal
     **/
     if (mnemonic == "ORG" || mnemonic == "DS ") {
       this->SetNewPC(code_line);
@@ -364,32 +355,27 @@ void Assembler::PassTwo() {
           machine_code_ = kDummyCodeC;
           hex = codelines_.at(i).GetHexObject();
           int hex_value_ = hex.GetValue();
-          // Checks if DS to a legal address
-          if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
-            // cout << "PC, before DS " << pc_in_assembler_ << endl;
-            pc_in_assembler_ += hex_value_;
-            // cout << hex_value_ << endl;
-            // cout << codelines_.at(i).GetPC() << endl;
-            // cout << "PC, after DS " << pc_in_assembler_ << "\n" << endl;
+          int updated_pc = pc_in_assembler_ + hex_value_;
+          // Checks if the DS allocation is a valid address value.
+          if ((updated_pc >= 0) && (updated_pc < DABnamespace::kMaxMemory)) {
+            pc_in_assembler_ = updated_pc;
             pc_in_assembler_--;
         } else {
             string error_message = GetInvalidMessage("DS ALLOCATION", hex);
             codelines_.at(i).SetErrorMessages(error_message);
-          }
+        }
     } else if (mnemonic == "ORG") {
         machine_code_ = kDummyCodeA;
         hex = codelines_.at(i).GetHexObject();
         int hex_value_ = hex.GetValue();
-        // checks if ORG to a legal address
+        // Checks if ORG to a legal address
         if ((hex_value_ >= 0) && (hex_value_ < DABnamespace::kMaxMemory)) {
-          //cout << "PC before ORG " << pc_in_assembler_ << endl;
           pc_in_assembler_ = hex_value_; 
-          //cout << "PC after ORG " << pc_in_assembler_ << endl;
           pc_in_assembler_--;
       } else {
           string error_message = GetInvalidMessage("PC VALUE", hex);
           codelines_.at(i).SetErrorMessages(error_message);
-        }
+      }
     } else if (mnemonic == "HEX") {
         machine_code_ = "";
         hex = codelines_.at(i).GetHexObject();
@@ -411,11 +397,19 @@ void Assembler::PassTwo() {
 
         int loc = symboltable_.at(sym).GetLocation();
         string addr_string = DABnamespace::DecToBitString(loc, 12);
-        machine_code_ += addr_string;
+        // Double checks if pc is still within memory. 
+        if (loc >= 0 && loc < DABnamespace::kMaxMemory) {
+          machine_code_ += addr_string;
+      } else {
+          string error_message;
+          error_message = "***** ERROR -- ADDRESS IS OUT OF BOUNDS\n";
+          codelines_.at(i).SetErrorMessages(error_message);
+          machine_code_ = kDummyCodeA;
+      }
     }
 
     // adds the machine code to the machine code map
-    //there is some error when generating machine code.
+    // there is some error when generating machine code.
     codelines_.at(i).SetMachineCode(machine_code_);
     if ( codelines_.at(i).GetMnemonic() != "END" ) {
       mach_pre.insert({stoi(codelines_.at(i).GetPC()), machine_code_});

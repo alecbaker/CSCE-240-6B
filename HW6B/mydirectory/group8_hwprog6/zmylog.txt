@@ -1,0 +1,73 @@
+Main: Beginning execution
+Main: logfile 'zmylog.txt
+
+Reading machine code
+
+PASS ONE
+    0    0  000000000000 xxxx xxxx xxxx xxxx RD      RD   ...
+    1    1  000000000001 xxxx xxxx xxxx xxxx        WRT   ...
+    2    2  000000000010 xxxx xxxx xxxx xxxx        STC   MEM
+    3    3  000000000011 xxxx xxxx xxxx xxxx        LD    CON
+    4    4  000000000100 xxxx xxxx xxxx xxxx LUP    ADD   MEM
+    5    5  000000000101 xxxx xxxx xxxx xxxx        WRT   ...
+    6    6  000000000110 xxxx xxxx xxxx xxxx        BAN   LUP
+    7    7  000000000111 xxxx xxxx xxxx xxxx        LD    ZER
+    8    8  000000001000 xxxx xxxx xxxx xxxx        WRT   ...
+    9    9  000000001001 xxxx xxxx xxxx xxxx        STP   ...
+   10   10  000000001010 xxxx xxxx xxxx xxxx MEM    DS        +0001
+   11   11  000000001011 xxxx xxxx xxxx xxxx CON    HEX       -0021
+   12   12  000000001100 xxxx xxxx xxxx xxxx ZER    HEX       +0000
+   13   13  000000001101 xxxx xxxx xxxx xxxx        END   ...
+
+
+SYMBOL TABLE
+    SYM LOC FLAGS
+SYM  CON  11
+SYM  LUP   4
+SYM  MEM  10
+SYM  RD    0
+SYM  ZER  12
+
+PASS TWO
+    0    0  000000000000 1110 0000 0000 0001 RD      RD   ...
+    1    1  000000000001 1110 0000 0000 0011        WRT   ...
+    2    2  000000000010 0100 0000 0000 1010        STC   MEM
+    3    3  000000000011 1010 0000 0000 1011        LD    CON
+    4    4  000000000100 1000 0000 0000 1010 LUP    ADD   MEM
+    5    5  000000000101 1110 0000 0000 0011        WRT   ...
+    6    6  000000000110 0000 0000 0000 0100        BAN   LUP
+    7    7  000000000111 1010 0000 0000 1100        LD    ZER
+    8    8  000000001000 1110 0000 0000 0011        WRT   ...
+    9    9  000000001001 1110 0000 0000 0010        STP   ...
+   10   10  000000001010 1111 0000 0000 0000 MEM    DS        +0001
+   11   11  000000001011 1111 1111 1101 1111 CON    HEX       -0021
+   12   12  000000001100 0000 0000 0000 0000 ZER    HEX       +0000
+   13   13  000000001101 0000 0000 1111 0000        END   ...
+
+
+SYMBOL TABLE
+    SYM LOC FLAGS
+SYM  CON  11
+SYM  LUP   4
+SYM  MEM  10
+SYM  RD    0
+SYM  ZER  12
+
+
+
+MACHINE CODE
+1110000000000001
+1110000000000011
+0100000000001010
+1010000000001011
+1000000000001010
+1110000000000011
+0000000000000100
+1010000000001100
+1110000000000011
+1110000000000010
+1111000000000000
+1111111111011111
+0000000000000000
+
+Main: Ending execution
