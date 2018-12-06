@@ -1,4 +1,11 @@
 JAMES THOMPSON:
+NOVEMBER 28
+  - Built contents of various functions within codelines.cc to
+    be used in the back-end of the assembler.
+DECEMBER 5
+  - Worked with Alec to create and complete the 6B System Manual.
+  - Spellchecked and formatted the 6B System Manual to improve
+    simplicity and legibility.
 
 
 
