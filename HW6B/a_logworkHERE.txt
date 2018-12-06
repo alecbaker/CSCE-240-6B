@@ -27,8 +27,14 @@ DECEMBER 2
     
 
 CHRISTOPHER WALLS:
-  
-
+  - With assistance from James and Chris, completed PassOne() and PassTwo()
+    funtionality, to the extent they work on source codes that have no 
+    errors within them.
+  - wrote codeline.cc
+  - made the template for system manual and user manual with Alec
+  - wrote user manual errors with help of Ethan
+  - added sourcecode and valid mneumonic formats
+  - wrote an error checking guide to distinguish where and how we handle certain errors
 
 JAMES COCHRAN:
 NOVEMER 28 5pm - 11pm:
