@@ -27,7 +27,7 @@ DECEMBER 2
     
 
 CHRISTOPHER WALLS:
-
+  
 
 
 JAMES COCHRAN:
@@ -54,7 +54,11 @@ DECEMBER 2 12pm-7pm
   - Helped Alec with his error checking 
   - Completed the multiply defined error working correctly 
 DECEMBER 3 3pm - 
-  - Me and Ethan made the code prettier 
+  - Me and Ethan made the code prettier.
+DECEMBER 5 
+  - Finalized and made sure the code worked in every case.
+  - Made sure our code covered every error the assembler can run into. 
+  - Worked on the User manual. 
 ETHAN WEAVER:
 November 29 10:30 - 12:15
   - Made it print the machine code to zmylog.txt
